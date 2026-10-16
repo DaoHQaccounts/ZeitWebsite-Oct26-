@@ -10,7 +10,7 @@ A fresh start from the call transcript. Separate from `ZeitWebsite-Oct26-` (V1 t
 1. Hero: short words, nothing else
 2. How it works: three cards
 3. Use cases: five cards
-4. The app: the same cards in a phone, swipe and open
+4. The app: a copy of the app's Home screen (greeting, orb, white cards, tab bar). Swipe the cards, tap one to open it, tap the orb to talk
 
 ## Edit the words
 

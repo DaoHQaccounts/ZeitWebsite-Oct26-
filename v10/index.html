@@ -190,6 +190,12 @@ section.part { padding-block: 104px 72px; }
 .img.has-photo::after { opacity: .08; }
 .card .img .photo { transition: transform 1.2s var(--ease); }
 .card:hover .img .photo { transform: scale(1.04); }
+/* the voice card: the app's haze and its orb */
+.sheet:has(.img.voice) .x { background: rgba(14,17,22,.08); color: var(--ink); }
+.sheet:has(.img.voice) .grab { background: rgba(14,17,22,.2); }
+.img.voice { background: radial-gradient(80% 70% at 40% 30%, #dfe6fb, #f2f3f6 75%); color: var(--ink); }
+.img.voice::before { display: none; }
+.img .big-orb { --u: 1px; position: absolute; left: 50%; top: 54%; width: 104px; height: 104px; margin: -52px 0 0 -52px; }
 .body .ask { color: var(--ink); font-size: 15.5px; line-height: 1.35; letter-spacing: -.01em; }
 .hero-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; }
 .hero.has-photo .glow { opacity: .35; }
@@ -218,50 +224,102 @@ section.part { padding-block: 104px 72px; }
 .body .foot .open { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); }
 .body .foot svg { width: 13px; height: 13px; }
 
-/* ---- 4 · the app: the same cards, in a phone ---- */
+/* ---- 4 · the app: a copy of the app's Home screen, laid out at the app's own 390 pt and
+   scaled to the phone by container units (1 --u = 1 pt) ---- */
 .stage { position: relative; margin-top: 56px; display: grid; place-items: center; }
 .stage::before {
   content: ""; position: absolute; width: min(120vw, 760px); aspect-ratio: 1; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  background: radial-gradient(closest-side, rgba(95,127,238,.22), rgba(169,131,238,.12) 50%, transparent);
+  background: radial-gradient(closest-side, rgba(95,127,238,.2), rgba(169,131,238,.1) 50%, transparent);
   filter: blur(20px); pointer-events: none;
 }
 .phone {
-  position: relative; width: min(82vw, 340px); aspect-ratio: 390 / 830;
-  border-radius: 54px; padding: 11px;
-  background: linear-gradient(145deg, #2a2d33, #0c0d10 40%, #1d1f24);
-  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.08), 0 2px 4px rgba(12,14,18,.1), 0 50px 100px -30px rgba(12,14,18,.45);
+  position: relative; width: min(84vw, 360px); aspect-ratio: 390 / 844;
+  border-radius: 15% / 7%; padding: 2.6%;
+  background: linear-gradient(150deg, #33363d, #15171b 35%, #22252b);
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.07), 0 2px 4px rgba(12,14,18,.08), 0 50px 100px -30px rgba(12,14,18,.4);
 }
-.phone::before, .phone::after { content: ""; position: absolute; right: -3px; width: 3px; border-radius: 0 2px 2px 0; background: #22252b; }
-.phone::before { top: 22%; height: 11%; }
-.phone::after { left: -3px; right: auto; border-radius: 2px 0 0 2px; top: 18%; height: 6%; }
 .screen {
-  position: relative; height: 100%; border-radius: 44px; overflow: hidden;
-  background: linear-gradient(180deg, #e7ecfb 0%, #f3f5f8 42%);
-  display: flex; flex-direction: column;
+  position: relative; height: 100%; overflow: hidden; container-type: inline-size;
+  border-radius: 12.6% / 5.9%; background: #f2f3f6;
 }
-.status { display: flex; justify-content: space-between; align-items: center; padding: 15px 28px 0; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.island { width: 30%; height: 26px; border-radius: 16px; background: #0b0c0e; }
-.bat { width: 23px; height: 11px; border-radius: 3.5px; border: 1.4px solid var(--ink); position: relative; }
-.bat::after { content: ""; position: absolute; inset: 1.5px 6px 1.5px 1.5px; border-radius: 1.5px; background: var(--ink); }
-.greet { padding: 30px 24px 0; }
-.greet h3 { margin: 0; font-size: 28px; font-weight: 700; line-height: 1.08; letter-spacing: -.045em; }
-.greet p { margin: 8px 0 0; color: var(--ink-2); font-size: 14px; }
-.phone .rail { --cw: min(54vw, 214px); margin-block: auto 0; gap: 8px; padding-block: 10px 16px; }
-.phone .card { border-radius: 22px; box-shadow: 0 1px 1px rgba(12,14,18,.04), 0 12px 28px -8px rgba(12,14,18,.16); }
-.phone .img .val { font-size: 38px; left: 14px; bottom: 12px; }
-.phone .img .tag { left: 14px; right: 14px; top: 12px; font-size: 9.5px; }
-.phone .img .spark { right: 12px; bottom: 16px; }
-.phone .body { padding: 13px 14px 14px; }
-.phone .body h3 { font-size: 17px; }
-.phone .body p { font-size: 12px; margin-top: 4px; }
-.phone .body .foot { display: none; }
-.phone .dots { margin-bottom: 16px; }
-.phone .dots i { height: 5px; width: 5px; }
-.phone .dots i.on { width: 18px; }
-.nav { display: flex; justify-content: space-around; padding: 10px 8px 22px; background: rgba(255,255,255,.75); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-top: 1px solid var(--hairline); font-size: 10px; color: var(--ink-3); }
-.nav span { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.nav span.on { color: var(--ink); }
-.nav svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+.app { position: absolute; inset: 0; --u: calc(100cqw / 390); font-size: calc(16 * var(--u)); }
+.app::before {   /* the soft blue haze behind the greeting */
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(70% 34% at 38% 20%, rgba(204,217,250,.85), transparent 72%);
+}
+.a-status {
+  position: absolute; left: 0; right: 0; top: 0; height: calc(54 * var(--u));
+  display: flex; align-items: center; justify-content: space-between; padding: calc(6 * var(--u)) calc(34 * var(--u)) 0 calc(40 * var(--u));
+  font-size: calc(17 * var(--u)); font-weight: 600; letter-spacing: -.01em; background: rgba(255,255,255,.55);
+}
+.a-island { position: absolute; left: 50%; top: calc(11 * var(--u)); width: calc(108 * var(--u)); height: calc(31 * var(--u)); margin-left: calc(-54 * var(--u)); border-radius: calc(16 * var(--u)); background: #0b0c0e; }
+.a-bat { width: calc(25 * var(--u)); height: calc(12 * var(--u)); border-radius: calc(4 * var(--u)); border: calc(1.6 * var(--u)) solid var(--ink); position: relative; }
+.a-bat::after { content: ""; position: absolute; inset: calc(1.6 * var(--u)) calc(6 * var(--u)) calc(1.6 * var(--u)) calc(1.6 * var(--u)); border-radius: calc(1.5 * var(--u)); background: var(--ink); }
+.a-hi {
+  position: absolute; left: calc(24 * var(--u)); top: calc(100 * var(--u)); margin: 0;
+  font-size: calc(36 * var(--u)); font-weight: 700; line-height: 1.13; letter-spacing: -.05em;
+}
+.a-sub { position: absolute; left: calc(24 * var(--u)); top: calc(196 * var(--u)); margin: 0; font-size: calc(17 * var(--u)); color: #4a4f58; }
+
+/* the orb: the app's blue voice, breathing */
+.orb {
+  border-radius: 50%;
+  background: radial-gradient(circle at 33% 27%, #ffffff 0 5%, #d3dcfb 11%, #8ea3f3 26%, #5372e6 48%, #3f5bdb 66%, #4f6de4 82%, #7f96f0 100%);
+  filter: blur(calc(2.6 * var(--u)));
+  box-shadow: 0 calc(12 * var(--u)) calc(30 * var(--u)) rgba(63,91,219,.22);
+  animation: orb 5.5s ease-in-out infinite alternate;
+}
+@keyframes orb { 50% { transform: translateY(calc(-3 * var(--u))) scale(1.04); } 100% { transform: translateY(calc(2 * var(--u))) scale(.98); } }
+.a-orb {
+  position: absolute; left: 50%; top: calc(244 * var(--u)); width: calc(84 * var(--u)); height: calc(84 * var(--u)); margin-left: calc(-42 * var(--u));
+  cursor: pointer;
+}
+.a-orb:active { transform: scale(.94); }
+
+/* the Home rail */
+.phone .rail {
+  --cw: calc(244 * var(--u));
+  position: absolute; left: 0; right: 0; bottom: calc(140 * var(--u)); margin: 0;
+  height: calc(340 * var(--u)); padding-block: calc(14 * var(--u)) calc(42 * var(--u)); gap: 0; align-items: center;
+}
+.acard {
+  position: relative; display: block; flex: none; width: var(--cw); height: calc(276 * var(--u));
+  border-radius: calc(30 * var(--u)); aspect-ratio: auto;
+  background: linear-gradient(180deg, #ffffff 0%, #f6f7f9 30%, #e9ebef 66%, #f6f7f9 100%);
+  border: 1px solid rgba(255,255,255,.95);
+  box-shadow: 0 calc(1 * var(--u)) calc(2 * var(--u)) rgba(20,25,40,.04), 0 calc(18 * var(--u)) calc(36 * var(--u)) calc(-10 * var(--u)) rgba(20,25,40,.18);
+}
+.acard:hover { box-shadow: 0 calc(1 * var(--u)) calc(2 * var(--u)) rgba(20,25,40,.05), 0 calc(22 * var(--u)) calc(40 * var(--u)) calc(-10 * var(--u)) rgba(20,25,40,.24); }
+.a-top { position: absolute; left: calc(22 * var(--u)); right: calc(22 * var(--u)); top: calc(30 * var(--u)); display: flex; justify-content: space-between; align-items: center; }
+.a-title { font-size: calc(21 * var(--u)); font-weight: 600; letter-spacing: -.025em; color: var(--ink); }
+.a-top svg, .a-foot svg { width: calc(20 * var(--u)); height: calc(20 * var(--u)); fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; color: #2b2f36; }
+.a-dash { position: absolute; left: calc(22 * var(--u)); top: calc(194 * var(--u)); width: calc(36 * var(--u)); height: calc(1.6 * var(--u)); background: #8e949d; }
+.a-line { position: absolute; left: calc(22 * var(--u)); right: calc(22 * var(--u)); top: calc(220 * var(--u)); height: 1px; background: rgba(14,17,22,.12); }
+.a-foot {
+  position: absolute; left: calc(22 * var(--u)); right: calc(22 * var(--u)); top: calc(232 * var(--u));
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: calc(12.5 * var(--u)); font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: #3d424b;
+}
+.phone .dots { position: absolute; left: 0; right: 0; bottom: calc(130 * var(--u)); gap: calc(18 * var(--u)); align-items: center; }
+.phone .dots i { width: calc(5 * var(--u)); height: calc(5 * var(--u)); border-radius: 50%; background: #c3c7ce; }
+.phone .dots i.on { width: calc(20 * var(--u)); height: calc(5 * var(--u)); border-radius: calc(3 * var(--u)); background: #14171c; }
+
+/* the floating tab bar, with Talk to ZEIT in the middle */
+.a-nav {
+  position: absolute; left: calc(15 * var(--u)); right: calc(15 * var(--u)); bottom: calc(26 * var(--u)); height: calc(70 * var(--u));
+  display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; padding: 0 calc(6 * var(--u));
+  border-radius: calc(35 * var(--u)); background: rgba(255,255,255,.9);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  box-shadow: 0 calc(12 * var(--u)) calc(30 * var(--u)) calc(-8 * var(--u)) rgba(20,25,40,.18);
+}
+.a-nav span {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(4 * var(--u));
+  height: calc(58 * var(--u)); font-size: calc(12.5 * var(--u)); color: #8a9099; white-space: nowrap;
+}
+.a-nav svg { width: calc(23 * var(--u)); height: calc(23 * var(--u)); fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+.a-nav .on { background: #eef0f3; border-radius: calc(30 * var(--u)); color: var(--ink); font-weight: 600; }
+.a-nav .talk { color: var(--ink); font-weight: 600; padding-top: calc(27 * var(--u)); cursor: pointer; }
+.a-nav .talk .orb { position: absolute; left: 50%; top: calc(-16 * var(--u)); width: calc(40 * var(--u)); height: calc(40 * var(--u)); margin-left: calc(-20 * var(--u)); animation-duration: 4.5s; }
 
 /* ---- footer ---- */
 footer { padding-block: 88px 0; background: var(--paper); overflow: hidden; }
@@ -314,7 +372,7 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
   .rail { gap: 22px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .glow i, .img::before, .hero h1 span, .hero .sub { animation: none; }
+  .glow i, .img::before, .hero h1 span, .hero .sub, .orb { animation: none; }
   .card, .sheet, .scrim { transition: none; }
 }
 </style>
@@ -372,19 +430,21 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
     <div class="stage">
       <div class="phone">
         <div class="screen">
-          <div class="status" aria-hidden="true"><span>9:41</span><span class="island"></span><span class="bat"></span></div>
-          <div class="greet">
-            <h3>Hi Katrin,<br>here is your record.</h3>
-            <p>One minute for you.</p>
+          <div class="app">
+            <div class="a-status" aria-hidden="true"><span>9:41</span><span class="a-island"></span><span class="a-bat"></span></div>
+            <h3 class="a-hi">Hi Katrin,<br>here is your record.</h3>
+            <p class="a-sub">One minute for you.</p>
+            <button class="a-orb orb" type="button" id="a-orb" aria-label="Talk to Zeit"></button>
+            <div class="rail" data-set="app" aria-label="Katrin's cards in the app"></div>
+            <div class="dots" aria-hidden="true"></div>
+            <nav class="a-nav" aria-label="App tabs">
+              <span class="on"><svg viewBox="0 0 24 24"><path d="M4 10.5L12 4l8 6.5V20H4z"/></svg>Home</span>
+              <span><svg viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="15" height="15" rx="3.5"/><circle cx="12" cy="12" r="3.2"/></svg>Vault</span>
+              <span class="talk" id="a-talk" role="button" tabindex="0"><i class="orb" aria-hidden="true"></i>Talk to ZEIT</span>
+              <span><svg viewBox="0 0 24 24"><path d="M5 5h14v10H10l-5 4z"/><path d="M8.5 9h7M8.5 12h4.5"/></svg>Chat</span>
+              <span><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>Profile</span>
+            </nav>
           </div>
-          <div class="rail" data-set="app" aria-label="Katrin's cards in the app"></div>
-          <div class="dots" aria-hidden="true"></div>
-          <nav class="nav" aria-hidden="true">
-            <span class="on"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/></svg>Home</span>
-            <span><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3.2"/></svg>Vault</span>
-            <span><svg viewBox="0 0 24 24"><path d="M5 5h14v10H9l-4 4z"/></svg>Chat</span>
-            <span><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>Profile</span>
-          </nav>
         </div>
       </div>
     </div>
@@ -472,16 +532,18 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
         q: 'When is Mum\'s next eye check?', a: 'In November. Her last one was November 2025, and the letter advises once a year.', src: 'Clinic letter · Nov 2025' },
     ],
     app: [
-      { hue: 'blue', k: 'Pulse', n: '2024', big: '61', unit: 'bpm', spark: 'pulse', h: 'Resting pulse', p: 'Steady all year.',
-        more: 'Your resting pulse has been steady all year.', rows: [['Average', '61 bpm'], ['Range', '57–66 bpm'], ['Source', 'Phone camera']] },
-      { hue: 'orange', k: 'Lab', n: '2023', big: '5.4', unit: '%', spark: 'rise', h: 'HbA1c', p: 'Average blood sugar.',
-        more: 'Your average blood sugar over about three months.', rows: [['Result', '5.4 %'], ['Range on the letter', 'below 5.7 %'], ['Last test', 'Mar 2023']] },
-      { hue: 'purple', k: 'Sleep', n: '30 days', big: '6h58', unit: '', spark: [16, 22, 19, 26, 21, 30, 24], h: 'Sleep', p: 'A night, on average.',
-        more: 'A little under seven hours on most nights.', rows: [['Average night', '6 h 58 min'], ['Best week', '7 h 22 min'], ['Source', 'Smart ring']] },
-      { hue: 'yellow', k: 'Rx', n: '2021', big: '400', unit: 'µg', spark: 'pill', h: 'Folic acid', p: 'Paused in June 2022.',
-        more: 'Taken daily with breakfast, paused in June 2022.', rows: [['Dose', '400 µg daily'], ['Started', '2021'], ['Status', 'paused 2022-06']] },
-      { hue: 'green', k: 'Lab', n: '2025', big: '32', unit: 'ng/mL', spark: [12, 15, 18, 22, 26, 31], h: 'Vitamin D', p: 'Up from 18 in 2021.',
-        more: 'Back inside the usual range over four years.', rows: [['Latest', '32 ng/mL'], ['Range on the letter', '30–100 ng/mL'], ['First result', '18 ng/mL · 2021']] },
+      { hue: 'blue', icon: 'vault', label: 'Upload', k: 'Vault', n: '14 files', big: '14', unit: 'files', h: 'Your Vault', p: 'Every letter and result.',
+        more: 'Every letter, result and photo you shared, kept as the original.', rows: [['Documents', '9'], ['Photos', '4'], ['What you told us', '1']] },
+      { hue: 'blue', icon: 'pulse', label: 'Check-in', k: 'Check-in', n: 'Today', big: '61', unit: 'bpm', spark: 'pulse', h: 'Daily Check-In', p: 'One minute for you.',
+        more: 'One minute: how you slept, how you feel, and anything new.', rows: [['Sleep last night', '6 h 41 min'], ['Resting pulse', '61 bpm'], ['Takes', 'about a minute']] },
+      { hue: 'orange', icon: 'visit', label: 'Visit', k: 'Visit', n: 'Thursday', big: '3', unit: 'questions', h: 'Doctor Visit', p: 'Ready for Thursday.',
+        more: 'Your visit with Dr. Weber on Thursday, with three questions ready to ask.', rows: [['When', 'Thursday, 10:30'], ['With', 'Dr. Weber'], ['Questions ready', '3']] },
+      { hue: 'green', icon: 'results', label: 'Results', k: 'Lab', n: '2025', big: '32', unit: 'ng/mL', spark: [12, 15, 18, 22, 26, 31], h: 'Your Results', p: 'Vitamin D, in range.',
+        more: 'Your vitamin D is back inside the usual range over four years.', rows: [['Latest', '32 ng/mL'], ['Range on the letter', '30–100 ng/mL'], ['First result', '18 ng/mL · 2021']] },
+      { hue: 'yellow', icon: 'meds', label: 'Medicines', k: 'Rx', n: '2021', big: '400', unit: 'µg', spark: 'pill', h: 'Medicines', p: 'What you take, and when.',
+        more: 'Folic acid, taken daily with breakfast, paused in June 2022.', rows: [['Dose', '400 µg daily'], ['Started', '2021'], ['Status', 'paused 2022-06']] },
+      { hue: 'purple', icon: 'sleep', label: 'Sleep', k: 'Sleep', n: '30 days', big: '6h58', unit: '', spark: [16, 22, 19, 26, 21, 30, 24], h: 'Sleep', p: 'A night, on average.',
+        more: 'A little under seven hours on most nights. Your best week was 7 h 22.', rows: [['Average night', '6 h 58 min'], ['Best week', '7 h 22 min'], ['Source', 'Smart ring']] },
     ],
   }
 
@@ -497,17 +559,34 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
       const sp = Array.isArray(c.spark) ? ART.bars(c.spark) : ART[c.spark] || ''
       inner = `<span class="val">${esc(c.big)}${c.unit ? `<small>${esc(c.unit)}</small>` : ''}</span><span class="spark">${sp}</span>`
     } else if (c.art) inner = `<span class="art">${ART[c.art]}</span>`
+    else if (c.orb) inner = `<span class="big-orb orb"></span>`
     // the photo lies on top of the drawn card; if it cannot load it removes itself and the drawing shows
     const src = photoURL(photoKey(c))
     const photo = src ? `<img class="photo" src="${src}" alt="" loading="lazy" decoding="async" onerror="this.parentNode.classList.remove('has-photo');this.remove()">` : ''
-    return `<span class="img${src ? ' has-photo' : ''}" style="--x:${x};--y:${y};--lx:${lx};--ly:${ly}">${inner}${photo}<span class="tag mono"><span>${esc(c.k)}</span><span>${esc(c.n)}</span></span></span>`
+    return `<span class="img${src ? ' has-photo' : ''}${c.orb ? ' voice' : ''}" style="--x:${x};--y:${y};--lx:${lx};--ly:${ly}">${inner}${photo}<span class="tag mono"><span>${esc(c.k)}</span><span>${esc(c.n)}</span></span></span>`
   }
+
+  const ICONS = {
+    vault: '<svg viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="15" height="15" rx="3.5"/><circle cx="12" cy="12" r="3.2"/></svg>',
+    pulse: '<svg viewBox="0 0 24 24"><path d="M3 12h4l2-4 4 9 2-5h6"/></svg>',
+    visit: '<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M4 10h16M9 3.5v4M15 3.5v4"/></svg>',
+    results: '<svg viewBox="0 0 24 24"><path d="M9 4v6l-4.5 8a1.5 1.5 0 001.3 2.2h12.4a1.5 1.5 0 001.3-2.2L15 10V4M8 4h8"/></svg>',
+    meds: '<svg viewBox="0 0 24 24"><rect x="3.5" y="8.5" width="17" height="7" rx="3.5" transform="rotate(-35 12 12)"/><path d="M9.8 8.9l4.4 6.2"/></svg>',
+    sleep: '<svg viewBox="0 0 24 24"><path d="M19 14.5A7.5 7.5 0 019.5 5a7.5 7.5 0 109.5 9.5z"/></svg>',
+  }
+  const toRight = '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
+  const appCardHTML = (c, i) =>
+    `<button class="card acard" type="button" data-i="${i}" aria-label="${esc(c.h)}. Open card">` +
+      `<span class="a-top"><span class="a-title">${esc(c.h)}</span>${ICONS[c.icon] || ''}</span>` +
+      `<span class="a-dash"></span><span class="a-line"></span>` +
+      `<span class="a-foot"><span>${esc(c.label)}</span>${toRight}</span></button>`
 
   const arrow = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12L12 4M6 4h6v6"/></svg>'
 
   document.querySelectorAll('.rail').forEach((rail) => {
     const list = SETS[rail.dataset.set]
-    rail.innerHTML = list.map((c, i) =>
+    const isApp = rail.dataset.set === 'app'
+    rail.innerHTML = isApp ? list.map(appCardHTML).join('') : list.map((c, i) =>
       `<button class="card ${c.hue}" type="button" data-i="${i}" aria-label="${esc(c.h)}. Open card">` +
         imgHTML(c, i) +
         `<span class="body"><h3>${esc(c.h)}</h3>${c.q ? `<p class="ask">“${esc(c.q)}”</p>` : `<p>${esc(c.p)}</p>`}` +
@@ -527,8 +606,8 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
         const r = card.getBoundingClientRect()
         const d = Math.min(1, Math.abs(r.left + r.width / 2 - mid) / r.width)
         if (d < bestD) { bestD = d; best = j }
-        card.style.setProperty('--s', (1 - d * 0.08).toFixed(3))
-        card.style.setProperty('--o', (1 - d * 0.35).toFixed(3))
+        card.style.setProperty('--s', (1 - d * (isApp ? 0.14 : 0.08)).toFixed(3))
+        card.style.setProperty('--o', (1 - d * (isApp ? 0.3 : 0.35)).toFixed(3))
       })
       dotEls.forEach((el, j) => el.classList.toggle('on', j === best))
     }
@@ -536,6 +615,12 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
     rail.addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; paint() }) } }, { passive: true })
     addEventListener('resize', paint)
     paint()
+    // the app opens on its second card, so a card waits on either side
+    if (isApp) requestAnimationFrame(() => {
+      const c1 = cards[1]
+      rail.scrollLeft = c1.offsetLeft - (rail.clientWidth - c1.offsetWidth) / 2
+      paint()
+    })
 
     // tap a card: off centre, it slides in; centred, it opens
     rail.addEventListener('click', (e) => {
@@ -571,6 +656,13 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
     setTimeout(() => { sheet.hidden = scrim.hidden = true }, reduce ? 0 : 450)
     if (back) back.focus({ preventScroll: true })
   }
+  const TALK = { hue: 'blue', orb: true, k: 'Talk to ZEIT', n: 'Voice', h: 'Talk to ZEIT', more: 'Tap the orb and ask out loud. Zeit answers from your record and names where the answer came from.',
+    q: 'What should I ask Dr. Weber on Thursday?', a: 'Ask about your HbA1c. It went from 5.2 to 5.4 % since 2021. Take your medicine list with you.', src: 'Lab letter · Mar 2023' }
+  const talk = (e) => open(TALK, 0, e.currentTarget)
+  document.getElementById('a-orb').addEventListener('click', talk)
+  const tk = document.getElementById('a-talk')
+  tk.addEventListener('click', talk)
+  tk.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); talk(e) } })
   sheet.addEventListener('click', (e) => { if (e.target.closest('.x')) close() })
   scrim.addEventListener('click', close)
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close() })
