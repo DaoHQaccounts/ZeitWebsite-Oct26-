@@ -9,6 +9,7 @@ cream knitwear, families of every age, a film camera at the edge of some frames.
 ## Sections
 
 1. **Hero** — simple / secure / health / superapp, with the app's orb; lifts away on scroll
+1a. **The Daily Loop** (new) — the app's Face Scan on a loop: one-minute timer, ring, pulse saved. A different face each time round
 1b. **People** (new) — "One record for everyone you love": two rows of photos drifting slowly
 2. **Cards** — company-style cards; a stacked deck that fans into the app's rail as you scroll
 3. **The app** — the app in a phone frame, used the way a person would: swipe the cards, tap the orb, ask out loud, get an answer from the record. New: the phone stands in front of a photo of a person, which changes with each use case

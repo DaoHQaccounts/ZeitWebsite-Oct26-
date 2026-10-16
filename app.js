@@ -616,7 +616,7 @@
   window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll) } }, { passive: true })
   onScroll()
 
-  const revealEls = document.querySelectorAll('.people-head > *, .product-copy, .about .h2, .about .lede, .shot, .pillars li, .updates > *')
+  const revealEls = document.querySelectorAll('.loop-copy, .people-head > *, .product-copy, .about .h2, .about .lede, .shot, .pillars li, .updates > *')
   if ('IntersectionObserver' in window && !reduce) {
     revealEls.forEach((el) => el.classList.add('reveal'))
     const io2 = new IntersectionObserver((es) => es.forEach((e) => {
@@ -830,6 +830,60 @@
       else if (!e.isIntersecting && playing) { playing = false; stop() }
     }), { threshold: 0.35 }).observe(devScreen)
   }
+
+  // ---- The Daily Loop: the Face Scan plays round, a different face each time --------------
+  ;(() => {
+    const scanner = document.getElementById('scanner')
+    if (!scanner) return
+    const faces = [...scanner.querySelectorAll('.sc-face')]
+    const steps = [...document.querySelectorAll('#loop-steps li')]
+    const el = (id) => document.getElementById(id)
+    const arc = el('sc-arc'), h = el('sc-h'), sub = el('sc-s'), time = el('sc-time'), line = el('sc-line'), done = el('sc-done'), bpm = el('sc-bpm')
+    const FULL = 918, SCAN = 6000
+    let run = 0, face = 0, raf = 0, tids = []
+    const wait = (ms) => new Promise((r) => tids.push(setTimeout(r, ms)))
+    const step = (k) => steps.forEach((s, i) => s.classList.toggle('on', i === k))
+    const say = (a, b) => { h.textContent = a; sub.textContent = b }
+    // the app's one-minute timer, run fast
+    const clock = (p) => { const s = Math.round(60 * (1 - p)); time.textContent = s === 60 ? '01:00' : '00:' + String(s).padStart(2, '0') }
+    function showDone() {
+      arc.style.strokeDashoffset = 0; clock(1); line.classList.remove('on')
+      bpm.textContent = faces[face].dataset.bpm; done.classList.add('on')
+      say('Done', 'Saved to your Pulse card'); step(1)
+    }
+    async function cycle() {
+      const id = ++run
+      faces.forEach((f, i) => f.classList.toggle('on', i === face))
+      done.classList.remove('on'); arc.style.strokeDashoffset = FULL; clock(0); step(0)
+      say('Looking for your face', 'Center your face in the frame')
+      await wait(1600); if (id !== run) return
+      say('Hold still', 'Reading your pulse'); line.classList.add('on')
+      const t0 = performance.now()
+      const f = (t) => {
+        if (id !== run) return
+        const p = Math.min(1, (t - t0) / SCAN)
+        arc.style.strokeDashoffset = (FULL * (1 - p)).toFixed(1); clock(p)
+        if (p < 1) raf = requestAnimationFrame(f)
+      }
+      raf = requestAnimationFrame(f)
+      await wait(SCAN + 100); if (id !== run) return
+      showDone()
+      await wait(2400); if (id !== run) return
+      step(2); say('Done', 'Ask ZEIT what it means')
+      await wait(2400); if (id !== run) return
+      face = (face + 1) % faces.length
+      cycle()
+    }
+    function stop() { run++; tids.forEach(clearTimeout); tids = []; cancelAnimationFrame(raf); line.classList.remove('on') }
+    if (reduce) { showDone(); return }
+    if ('IntersectionObserver' in window) {
+      let on = false
+      new IntersectionObserver((es) => es.forEach((e) => {
+        if (e.isIntersecting && !on) { on = true; cycle() }
+        else if (!e.isIntersecting && on) { on = false; stop() }
+      }), { threshold: 0.3 }).observe(scanner)
+    } else cycle()
+  })()
 
   const form = document.getElementById('optin')
   const input = document.getElementById('email')

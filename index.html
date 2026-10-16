@@ -41,6 +41,40 @@
       <p class="hero-foot" id="hero-foot"><span>Zeit Health</span><span>Scroll</span></p>
     </section>
 
+    <!-- 1a · THE DAILY LOOP: the app's Face Scan (screen copied from the app: ZEIT.SCAN bar, one-minute
+         timer, ring). It plays on a loop, a different face each time round -->
+    <section class="loop pad" id="loop" aria-labelledby="loop-h">
+      <div class="loop-copy">
+        <p class="small soft">The Daily Loop</p>
+        <h2 id="loop-h" class="h2">Your daily check-in<br /><span class="soft">takes one look.</span></h2>
+        <p class="lede">Look into your phone for a minute. Zeit reads your pulse from your face
+        and adds it to your record.</p>
+        <ol class="loop-steps" id="loop-steps">
+          <li class="on"><span class="n">01</span><b>Scan</b><span>One minute with your camera.</span></li>
+          <li><span class="n">02</span><b>Save</b><span>It lands on your Pulse card.</span></li>
+          <li><span class="n">03</span><b>Ask</b><span>Talk to ZEIT about it.</span></li>
+        </ol>
+      </div>
+      <figure class="scanner" id="scanner" aria-hidden="true">
+        <div class="sc-screen">
+          <img class="sc-face on" src="https://d8j0ntlcm91z4.cloudfront.net/user_3E20bokjy0pzJry4ZiHM9CTLOQt/hf_20261016_185441_4d771a7e-c175-4625-8382-f3144a254091_min.webp" alt="" data-bpm="62" decoding="async" />
+          <img class="sc-face" src="https://d8j0ntlcm91z4.cloudfront.net/user_3E20bokjy0pzJry4ZiHM9CTLOQt/hf_20261016_185440_7d6ffab4-d48f-4b78-9671-9dfec9160e7b_min.webp" alt="" data-bpm="68" loading="lazy" decoding="async" />
+          <img class="sc-face" src="https://d8j0ntlcm91z4.cloudfront.net/user_3E20bokjy0pzJry4ZiHM9CTLOQt/hf_20261016_185440_f6a373b5-b953-447c-9f4d-407407da6537_min.webp" alt="" data-bpm="71" loading="lazy" decoding="async" />
+          <span class="sc-veil"></span>
+          <div class="sc-bar"><span>ZEIT.SCAN</span><b id="sc-time">01:00</b></div>
+          <p class="sc-h" id="sc-h">Looking for your face</p>
+          <p class="sc-s" id="sc-s">Center your face in the frame</p>
+          <svg class="sc-ring" viewBox="0 0 300 300">
+            <circle cx="150" cy="150" r="146" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
+            <circle id="sc-arc" cx="150" cy="150" r="146" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="918" stroke-dashoffset="918" transform="rotate(-90 150 150)"/>
+          </svg>
+          <span class="sc-line" id="sc-line"></span>
+          <div class="sc-done" id="sc-done"><span>Pulse</span><b id="sc-bpm">62</b><i>bpm</i></div>
+          <p class="sc-back">Back to Home</p>
+        </div>
+      </figure>
+    </section>
+
     <!-- 1b · PEOPLE: who the record is for. Studio photographs (Higgsfield), two rows that loop:
          the top drifts left to right, the bottom right to left -->
     <section class="people" id="people" aria-labelledby="people-h">
@@ -216,6 +250,7 @@
   <footer class="footer pad">
     <div class="foot-row small">
       <nav class="foot-links" aria-label="Footer">
+        <a href="#loop">Daily Loop</a>
         <a href="#people">People</a>
         <a href="#cards">Cards</a>
         <a href="#updates">Updates</a>

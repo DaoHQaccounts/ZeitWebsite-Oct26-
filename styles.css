@@ -110,6 +110,53 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 .js .hero-orb.in { opacity: calc(.9 * var(--fade, 1)); transition: opacity 1.8s ease .3s; }
 .js .hero-orb.in.settled { transition: none; }
 
+/* ---- 1a · the daily loop: the app's Face Scan screen in a phone frame, sized in container
+   units so the whole screen scales as one picture ---- */
+.loop { padding-top: 24px; padding-bottom: var(--section); display: grid; gap: 56px; justify-items: center; }
+.loop-copy { text-align: center; }
+.loop-copy .small { margin: 0 0 18px; }
+.loop-steps { list-style: none; margin: 40px auto 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 16px; max-width: 520px; text-align: left; }
+.loop-steps li { position: relative; padding-top: 14px; border-top: 1px solid var(--hairline); color: var(--ink-3); transition: color .4s ease; }
+.loop-steps li::before { content: ""; position: absolute; left: 0; top: -1px; height: 1px; width: 0; background: var(--ink); transition: width .6s var(--ease); }
+.loop-steps li.on { color: var(--ink); }
+.loop-steps li.on::before { width: 100%; }
+.loop-steps .n { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+.loop-steps b { display: block; margin-top: 4px; font-size: var(--t-body); font-weight: 500; }
+.loop-steps li > span:last-child { display: block; margin-top: 2px; font-size: var(--t-small); line-height: 1.4; }
+.loop-steps li.on > span:last-child { color: var(--ink-2); }
+
+.scanner {
+  margin: 0; width: min(74vw, 330px); padding: 10px; border-radius: 54px;
+  background: linear-gradient(145deg, #2a2d33, #0d0f12 40%, #24272d);
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.08), var(--e2);
+}
+.sc-screen { position: relative; aspect-ratio: 390 / 844; border-radius: 44px; overflow: hidden; background: #0d0e10; container-type: inline-size; color: #fff; }
+.sc-face { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; opacity: 0; transform: scale(1.06); transition: opacity 1s ease, transform 12s ease-out; }
+.sc-face.on { opacity: 1; transform: none; }
+/* the camera view darkens outside the ring, as in the app */
+.sc-veil { position: absolute; inset: 0; background:
+  radial-gradient(circle 37cqw at 50% 85cqw, transparent 98%, rgba(10, 11, 13, .55) 100%),
+  linear-gradient(rgba(10, 11, 13, .35), transparent 30%); }
+.sc-bar { position: absolute; left: 6cqw; right: 6cqw; top: 11cqw; height: 14cqw; border-radius: 8cqw; background: linear-gradient(#fff, #e9eaed); color: var(--ink);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 3cqw 0 5cqw; }
+.sc-bar span { font-size: 3cqw; font-weight: 600; letter-spacing: .26em; }
+.sc-bar b { padding: 1.6cqw 3cqw; border-radius: 4cqw; background: #3a3c40; color: #d9dade; font-size: 3.6cqw; font-weight: 500; font-variant-numeric: tabular-nums; }
+.sc-h { position: absolute; left: 0; right: 0; top: 29cqw; margin: 0; text-align: center; font-size: 6cqw; font-weight: 600; letter-spacing: -0.01em; text-shadow: 0 1px 12px rgba(0,0,0,.25); }
+.sc-s { position: absolute; left: 0; right: 0; top: 37.5cqw; margin: 0; text-align: center; font-size: 3.8cqw; color: rgba(255,255,255,.8); text-shadow: 0 1px 10px rgba(0,0,0,.3); }
+.sc-ring { position: absolute; left: 12cqw; top: 47cqw; width: 76cqw; height: 76cqw; }
+.sc-line { position: absolute; left: 22cqw; right: 22cqw; top: 53cqw; height: 2px; border-radius: 2px; opacity: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.9), transparent); box-shadow: 0 0 14px rgba(255,255,255,.6); }
+.sc-line.on { opacity: 1; animation: sc-sweep 2.4s ease-in-out infinite alternate; }
+@keyframes sc-sweep { to { transform: translateY(62cqw); } }
+.sc-done { position: absolute; left: 50%; top: 136cqw; transform: translate(-50%, 8px); opacity: 0; transition: opacity .5s ease, transform .6s var(--ease);
+  display: flex; align-items: baseline; gap: 1.6cqw; padding: 3cqw 6cqw; border-radius: 10cqw;
+  background: rgba(255,255,255,.9); color: var(--ink); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); white-space: nowrap; }
+.sc-done.on { opacity: 1; transform: translate(-50%, 0); }
+.sc-done span { font-size: 3.4cqw; color: var(--ink-2); margin-right: 1cqw; }
+.sc-done b { font-size: 10cqw; font-weight: 500; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.sc-done i { font-style: normal; font-size: 3.6cqw; color: var(--ink-2); }
+.sc-back { position: absolute; left: 0; right: 0; bottom: 10cqw; margin: 0; text-align: center; font-size: 3.8cqw; color: rgba(255,255,255,.6); }
+
 /* ---- 1b · people: a slow wall of studio photographs, two rows drifting opposite ways ---- */
 .people { padding-top: 24px; padding-bottom: var(--section); text-align: center; overflow: hidden; }
 .people-head { max-width: 1180px; margin: 0 auto; }
@@ -495,6 +542,9 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
   .cards-head { max-width: 1180px; margin: 0 auto; width: 100%; }
   .sheet { left: 50%; right: auto; width: 460px; margin-left: -230px; }
   .tile { --tw: 340px; }
+  .loop { grid-template-columns: 1fr 1fr; align-items: center; max-width: 1180px; margin: 0 auto; }
+  .loop-copy { text-align: left; }
+  .loop-steps { margin-left: 0; }
   .shot-ph { aspect-ratio: 16 / 9; }
   .stage-photos { left: 6%; right: 6%; }
   .foot-mark { font-size: 24vw; }
@@ -511,5 +561,6 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
   .zc-row .track i { left: var(--x); transition: none; }
   .wall { overflow-x: auto; }
   .wall-row { animation: none; }
+  .sc-face, .sc-done { transition: none; }
   .stage-photos img { transition: none; transform: none; }
 }
