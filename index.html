@@ -61,6 +61,12 @@
       <div class="product-copy">
         <p class="small soft">The app</p>
         <h2 id="product-h" class="h2">One minute a day.<br /><span class="soft">That is all it asks.</span></h2>
+        <ol class="uses" id="uses" aria-label="What you can ask">
+          <li><button class="use on" type="button" aria-pressed="true"><b>Your sleep</b><span>Ask how you slept this month.</span></button></li>
+          <li><button class="use" type="button" aria-pressed="false"><b>Before a visit</b><span>Know what to ask your doctor.</span></button></li>
+          <li><button class="use" type="button" aria-pressed="false"><b>Your results</b><span>Hear what a test means, in plain words.</span></button></li>
+          <li><button class="use" type="button" aria-pressed="false"><b>Your medicines</b><span>Check what you take, and when.</span></button></li>
+        </ol>
       </div>
       <figure class="phone" id="phone">
         <div class="phone-screen" id="phone-screen">
@@ -96,7 +102,7 @@
             <span class="dev-finger" id="dev-finger"></span>
           </div>
         </div>
-        <figcaption class="phone-cap small soft">Talk to ZEIT</figcaption>
+        <figcaption class="phone-cap small soft" id="phone-cap" aria-live="polite">Your sleep</figcaption>
       </figure>
     </section>
 

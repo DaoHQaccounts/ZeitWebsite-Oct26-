@@ -687,20 +687,21 @@
     finger.classList.toggle('down', !!down)
   }
   // a real swipe: the finger lands, drags the row with it, lets go, and the row springs on
-  async function swipe(id) {
-    fingerAt(300, 520, true)
+  async function swipe(id, dir = 1) {
+    // dir 1 pulls the next card in from the right; -1 pulls the previous one from the left
+    fingerAt(dir > 0 ? 300 : 90, 520, true)
     await later(160)
     if (id !== run) return
     devRail.classList.add('dragging')
-    ORBS.home.gaze(-0.8, 0.3)
+    ORBS.home.gaze(-0.8 * dir, 0.3)
     finger.classList.add('moving')
-    finger.style.left = '120px'
+    finger.style.left = (dir > 0 ? 120 : 270) + 'px'
     const t0 = performance.now()
     await new Promise((res) => {
       const f = (t) => {
         if (id !== run) return res()
         const p = Math.min(1, (t - t0) / 420), e = 1 - Math.pow(1 - p, 2)
-        devLayout(devF, -150 * e)
+        devLayout(devF, -150 * e * dir)
         p < 1 ? requestAnimationFrame(f) : res()
       }
       requestAnimationFrame(f)
@@ -708,7 +709,7 @@
     if (id !== run) return
     finger.classList.remove('down')
     devRail.classList.remove('dragging')   // let go: the row springs on from where the finger left it
-    devF = (devF + 1) % devEls.length
+    devF = (devF + dir + devEls.length) % devEls.length
     devLayout(devF)
     ORBS.home.pulse(0.2); timers.push(setTimeout(() => ORBS.home.gaze(0, 0), 500))
   }
@@ -755,30 +756,56 @@
     mode(''); state('Tap to talk')
   }
 
-  async function play() {
+  // The use cases: each one swipes to its card on Home, asks the orb, and gets an answer
+  // from the record. Values match the cards higher up the page, so the page tells one story.
+  const USES = [
+    { swipes: [], q: 'How did I sleep this month?', a: 'About 6 h 58 min a night. Your best week was 7 h 22.', src: 'Ring sensor · 30 days' },
+    { swipes: [1], q: 'What should I ask at my visit on Friday?', a: 'Ask if your HbA1c needs a recheck, and if folic acid still makes sense for you.', src: 'Doctor visit · Fri 10:30' },
+    { swipes: [-1], q: 'What did my last blood test say?', a: 'Your HbA1c was 5.4 %. That is in the normal range.', src: 'Blood panel · Mar 2023' },
+    { swipes: [-1, -1], q: 'When did I stop taking folic acid?', a: 'You paused it in June 2022. Before that you took 400 µg with breakfast.', src: 'Medicines · Folic acid 400 µg' },
+  ]
+  const useEls = [...document.querySelectorAll('#uses .use')]
+  const phoneCap = document.getElementById('phone-cap')
+  let useIdx = 0, progRaf = 0
+  function showUse(i) {
+    useEls.forEach((el, j) => { el.classList.toggle('on', j === i); el.setAttribute('aria-pressed', j === i); el.style.setProperty('--p', j < i ? 1 : 0) })
+    if (useEls[i]) phoneCap.textContent = useEls[i].querySelector('b').textContent
+    // the active line fills over the length of its scene
+    cancelAnimationFrame(progRaf)
+    const u = USES[i], words = (t) => t.split(' ').length
+    const dur = (1.1 + u.swipes.length * 1.6 + 2.2 + words(u.q) * 0.26 + 2.2 + words(u.a) * 0.21 + 4.4) * 1000
+    const el = useEls[i], t0 = performance.now()
+    const f = (t) => { if (el) el.style.setProperty('--p', Math.min(1, (t - t0) / dur).toFixed(3)); if (t - t0 < dur) progRaf = requestAnimationFrame(f) }
+    progRaf = requestAnimationFrame(f)
+  }
+
+  async function play(i = useIdx) {
     const id = ++run
     stopTimers()
+    useIdx = i
+    const u = USES[i]
+    showUse(i)
     devF = 0; devLayout(0); dev.classList.remove('talking', 'listening', 'speaking')
     state('Tap to talk'); $('dt-you').textContent = ''; $('dt-zeit').textContent = ''; $('dt-src').classList.remove('on')
-    await later(1400); if (id !== run) return
-    await swipe(id); await later(1300); if (id !== run) return
-    await swipe(id); await later(1300); if (id !== run) return
+    await later(1100); if (id !== run) return
+    for (const d of u.swipes) { await swipe(id, d); await later(1000); if (id !== run) return }
     await tap(195, 240); if (id !== run) return             // the orb on Home
     ORBS.home.poke()
     dev.classList.add('talking')
-    await later(1100); if (id !== run) return
-    await exchange(id, 'What did my last blood test say?', 'Your HbA1c was 5.4 %. That is in the normal range.', 'Blood panel · Mar 2023')
-    await later(2200); if (id !== run) return
-    await exchange(id, 'Do I need to do anything?', 'Nothing urgent. Ask your doctor about a recheck at your next visit.', 'Blood panel · Mar 2023')
-    await later(2600); if (id !== run) return
+    await later(1000); if (id !== run) return
+    await exchange(id, u.q, u.a, u.src)
+    await later(3000); if (id !== run) return
     await tap(353, 100)                                     // close
     dev.classList.remove('talking'); mode('')
     devF = 0; devLayout(0)
-    await later(2600); if (id !== run) return
-    play()
+    await later(1200); if (id !== run) return
+    play((i + 1) % USES.length)
   }
+  // pick a use case yourself and the phone plays it straight away
+  useEls.forEach((el, j) => el.addEventListener('click', () => { if (!reduce) play(j); else showUse(j) }))
   function stopTimers() { timers.forEach(clearTimeout); timers = [] }
-  function stop() { run++; stopTimers(); finger.classList.remove('down'); mode('') }
+  function stop() { run++; stopTimers(); cancelAnimationFrame(progRaf); finger.classList.remove('down'); mode('') }
+  if (reduce) showUse(0)
   if (!reduce && 'IntersectionObserver' in window) {
     let playing = false
     new IntersectionObserver((es) => es.forEach((e) => {
