@@ -139,14 +139,13 @@ section.part { padding-block: 104px 72px; }
 .head h2 { margin: 0; font-size: clamp(36px, 9.6vw, 72px); font-weight: 500; line-height: .98; letter-spacing: -.05em; text-wrap: balance; }
 .lead { margin: 20px auto 0; max-width: 26em; color: var(--ink-2); font-size: 17px; }
 
-/* ---- the rail: native swipe, snap, and the app's off-centre scale ---- */
+/* ---- the rail: the app's carousel. Cards sit on one centre line; a spring moves them,
+   following a finger, a mouse or a trackpad ---- */
 .rail {
-  display: flex; gap: 14px; margin-top: 52px;
-  overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
-  padding-block: 12px 36px; scrollbar-width: none;
-  padding-inline: calc(50% - var(--cw) / 2); scroll-padding-inline: calc(50% - var(--cw) / 2);
+  position: relative; margin-top: 52px; height: var(--rh, 520px);
+  touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: grab; outline: none;
 }
-.rail::-webkit-scrollbar { display: none; }
+.rail.dragging { cursor: grabbing; }
 .dots { display: flex; justify-content: center; gap: 8px; }
 .dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(14,17,22,.15); transition: width .45s var(--ease), background .3s ease; }
 .dots i.on { width: 22px; background: var(--ink); }
@@ -154,16 +153,15 @@ section.part { padding-block: 104px 72px; }
 
 /* ---- the card: half image, information below, coloured headline ---- */
 .card {
-  --s: 1;
-  flex: none; width: var(--cw); scroll-snap-align: center;
+  position: absolute; top: 12px; left: 50%; width: var(--cw); margin-left: calc(var(--cw) / -2);
   display: flex; flex-direction: column;
   border-radius: 26px; overflow: hidden; background: var(--surface);
-  box-shadow: var(--e1);
-  transform: scale(var(--s)); opacity: var(--o, 1);
-  transition: box-shadow .5s var(--ease), transform .25s ease-out, opacity .25s ease-out;
+  box-shadow: var(--e1); will-change: transform, opacity;
+  transition: box-shadow .5s var(--ease);
 }
 .card:hover { box-shadow: var(--e2); }
-.card:active { transform: scale(calc(var(--s) * .97)); }
+.card:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(63,91,219,.4), var(--e2); }
+.card img { -webkit-user-drag: none; user-select: none; pointer-events: none; }
 .img { display: block;
   position: relative; aspect-ratio: 1 / 1.02; overflow: hidden; color: #fff; isolation: isolate;
   background:
@@ -233,14 +231,15 @@ section.part { padding-block: 104px 72px; }
   filter: blur(20px); pointer-events: none;
 }
 .phone {
-  position: relative; width: min(84vw, 360px); aspect-ratio: 390 / 844;
-  border-radius: 15% / 7%; padding: 2.6%;
+  --pw: min(84vw, 360px);
+  position: relative; width: var(--pw);
+  border-radius: calc(var(--pw) * .165); padding: calc(var(--pw) * .03);
   background: linear-gradient(150deg, #33363d, #15171b 35%, #22252b);
   box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.07), 0 2px 4px rgba(12,14,18,.08), 0 50px 100px -30px rgba(12,14,18,.4);
 }
-.screen {
-  position: relative; height: 100%; overflow: hidden; container-type: inline-size;
-  border-radius: 12.6% / 5.9%; background: #f2f3f6;
+.screen {   /* exactly the app's 390 x 844 */
+  position: relative; width: 100%; aspect-ratio: 390 / 844; overflow: hidden; container-type: inline-size;
+  border-radius: calc(var(--pw) * .135); background: #f2f3f6;
 }
 .app { position: absolute; inset: 0; --u: calc(100cqw / 390); font-size: calc(16 * var(--u)); }
 .app::before {   /* the soft blue haze behind the greeting */
@@ -279,11 +278,10 @@ section.part { padding-block: 104px 72px; }
 /* the Home rail */
 .phone .rail {
   --cw: calc(244 * var(--u));
-  position: absolute; left: 0; right: 0; bottom: calc(140 * var(--u)); margin: 0;
-  height: calc(340 * var(--u)); padding-block: calc(14 * var(--u)) calc(42 * var(--u)); gap: 0; align-items: center;
+  position: absolute; left: 0; right: 0; bottom: calc(150 * var(--u)); margin: 0; height: calc(310 * var(--u));
 }
 .acard {
-  position: relative; display: block; flex: none; width: var(--cw); height: calc(276 * var(--u));
+  position: absolute; top: calc(14 * var(--u)); display: block; width: var(--cw); height: calc(276 * var(--u));
   border-radius: calc(30 * var(--u)); aspect-ratio: auto;
   background: linear-gradient(180deg, #ffffff 0%, #f6f7f9 30%, #e9ebef 66%, #f6f7f9 100%);
   border: 1px solid rgba(255,255,255,.95);
@@ -300,7 +298,7 @@ section.part { padding-block: 104px 72px; }
   display: flex; justify-content: space-between; align-items: center;
   font-size: calc(12.5 * var(--u)); font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: #3d424b;
 }
-.phone .dots { position: absolute; left: 0; right: 0; bottom: calc(130 * var(--u)); gap: calc(18 * var(--u)); align-items: center; }
+.phone .dots { position: absolute; left: 0; right: 0; bottom: calc(124 * var(--u)); gap: calc(18 * var(--u)); align-items: center; }
 .phone .dots i { width: calc(5 * var(--u)); height: calc(5 * var(--u)); border-radius: 50%; background: #c3c7ce; }
 .phone .dots i.on { width: calc(20 * var(--u)); height: calc(5 * var(--u)); border-radius: calc(3 * var(--u)); background: #14171c; }
 
@@ -583,6 +581,118 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
 
   const arrow = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12L12 4M6 4h6v6"/></svg>'
 
+  // ---- The rail: the app's carousel. One spring (the app's k 380, c 34) carries the row;
+  //      while you drag, the row sits under your finger; let go and it springs on with your speed.
+  //      The centred card is full size, the others step back. Tap a side card to bring it in,
+  //      tap the centred card to open it. Arrow keys and a sideways trackpad swipe work too. ----
+  const SPRING = { k: 380, c: 34 }
+  function carousel(rail, list, o) {
+    const cards = [...rail.children], n = cards.length
+    const dots = [...rail.nextElementSibling.children]
+    let pos = o.start || 0, vel = 0, target = pos, raf = 0, last = 0, drag = null, press = 1, pressTo = 1
+    const step = () => cards[0].offsetWidth + o.gap(cards[0].offsetWidth)
+    const centre = () => Math.max(0, Math.min(n - 1, Math.round(pos)))
+
+    function render() {
+      const s = step(), c = centre()
+      cards.forEach((card, i) => {
+        const d = i - pos, k = Math.min(Math.abs(d), 1)
+        const sc = (1 - k * (1 - o.off)) * (i === c ? press : 1)
+        card.style.transform = `translate3d(${(d * s).toFixed(2)}px,0,0) scale(${sc.toFixed(4)})`
+        card.style.opacity = (1 - k * (1 - o.offOpacity)).toFixed(3)
+        card.style.zIndex = 20 - Math.round(Math.abs(d))
+        card.tabIndex = i === c ? 0 : -1
+      })
+      dots.forEach((el, j) => el.classList.toggle('on', j === c))
+    }
+    function frame(t) {
+      const dt = Math.min(0.05, (t - last) / 1000 || 0.016); last = t
+      if (!drag) {
+        const h = dt / 4
+        for (let j = 0; j < 4; j++) { vel += (-SPRING.k * (pos - target) - SPRING.c * vel) * h; pos += vel * h }
+      }
+      press += (pressTo - press) * Math.min(1, dt * 20)
+      const still = !drag && Math.abs(pos - target) < 0.0004 && Math.abs(vel) < 0.002 && Math.abs(press - pressTo) < 0.001
+      if (still) { pos = target; vel = 0; press = pressTo }
+      render()
+      raf = still ? 0 : requestAnimationFrame(frame)
+    }
+    const wake = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame) } }
+    const go = (i) => {
+      target = Math.max(0, Math.min(n - 1, i))
+      if (reduce) { pos = target; vel = 0; render() } else wake()
+    }
+    const band = (p) => p < 0 ? p * 0.3 : p > n - 1 ? n - 1 + (p - n + 1) * 0.3 : p
+
+    rail.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || !e.isPrimary) return
+      const card = e.target.closest('.card')
+      drag = { x: e.clientX, y: e.clientY, p0: pos, id: e.pointerId, moved: false, hist: [[e.timeStamp, e.clientX]], card }
+      vel = 0; target = pos
+      if (card && +card.dataset.i === centre()) pressTo = 0.97
+      wake()
+    })
+    rail.addEventListener('pointermove', (e) => {
+      if (!drag || e.pointerId !== drag.id) return
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y
+      if (!drag.moved) {
+        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return
+        if (Math.abs(dy) > Math.abs(dx)) { end(e, true); return }   // a page scroll, not a swipe
+        drag.moved = true; pressTo = 1
+        rail.setPointerCapture(e.pointerId); rail.classList.add('dragging')
+      }
+      pos = band(drag.p0 - dx / step())
+      drag.hist.push([e.timeStamp, e.clientX]); if (drag.hist.length > 5) drag.hist.shift()
+      wake()
+    })
+    function end(e, cancelled) {
+      if (!drag || e.pointerId !== drag.id) return
+      const g = drag; drag = null; pressTo = 1
+      rail.classList.remove('dragging')
+      if (!g.moved) {
+        if (cancelled || !g.card) { go(Math.round(pos)); return }
+        const i = +g.card.dataset.i
+        if (i !== centre()) go(i)
+        else { wake(); o.open(i, g.card) }
+        return
+      }
+      const [t0, x0] = g.hist[0], [t1, x1] = g.hist[g.hist.length - 1]
+      const vpx = t1 > t0 ? (x1 - x0) / (t1 - t0) * 1000 : 0   // px per second
+      vel = -vpx / step()
+      const from = Math.round(g.p0)
+      go(Math.max(from - 2, Math.min(from + 2, Math.round(pos + vel * 0.12))))
+    }
+    rail.addEventListener('pointerup', (e) => end(e, false))
+    rail.addEventListener('pointercancel', (e) => end(e, true))
+    rail.addEventListener('lostpointercapture', (e) => end(e, true))
+
+    let wheelT = 0
+    rail.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return
+      e.preventDefault()
+      vel = 0; pos = band(pos + e.deltaX / step()); target = pos; render()
+      clearTimeout(wheelT); wheelT = setTimeout(() => go(Math.round(pos)), 80)
+    }, { passive: false })
+
+    rail.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        e.preventDefault(); go(centre() + (e.key === 'ArrowRight' ? 1 : -1))
+        cards[target].focus({ preventScroll: true })
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault(); o.open(centre(), cards[centre()])
+      }
+    })
+    rail.addEventListener('click', (e) => e.preventDefault())
+
+    const size = () => {
+      if (o.fit) rail.style.setProperty('--rh', Math.max(...cards.map((c) => c.offsetHeight)) + 52 + 'px')
+      render()
+    }
+    addEventListener('resize', size)
+    if (document.fonts) document.fonts.ready.then(size)
+    size()
+  }
+
   document.querySelectorAll('.rail').forEach((rail) => {
     const list = SETS[rail.dataset.set]
     const isApp = rail.dataset.set === 'app'
@@ -592,45 +702,11 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
         `<span class="body"><h3>${esc(c.h)}</h3>${c.q ? `<p class="ask">“${esc(c.q)}”</p>` : `<p>${esc(c.p)}</p>`}` +
         `<span class="foot mono"><span>${String(i + 1).padStart(2, '0')} / ${String(list.length).padStart(2, '0')}</span><span class="open">Open ${arrow}</span></span></span>` +
       `</button>`).join('')
-
-    const cards = [...rail.children]
-    const dots = rail.nextElementSibling
-    dots.innerHTML = list.map(() => '<i></i>').join('')
-    const dotEls = [...dots.children]
-
-    // like the app: the centred card is full size, the others step back a little
-    const paint = () => {
-      const rr = rail.getBoundingClientRect(), mid = rr.left + rr.width / 2
-      let best = 0, bestD = Infinity
-      cards.forEach((card, j) => {
-        const r = card.getBoundingClientRect()
-        const d = Math.min(1, Math.abs(r.left + r.width / 2 - mid) / r.width)
-        if (d < bestD) { bestD = d; best = j }
-        card.style.setProperty('--s', (1 - d * (isApp ? 0.14 : 0.08)).toFixed(3))
-        card.style.setProperty('--o', (1 - d * (isApp ? 0.3 : 0.35)).toFixed(3))
-      })
-      dotEls.forEach((el, j) => el.classList.toggle('on', j === best))
-    }
-    let queued = false
-    rail.addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; paint() }) } }, { passive: true })
-    addEventListener('resize', paint)
-    paint()
-    // the app opens on its second card, so a card waits on either side
-    if (isApp) requestAnimationFrame(() => {
-      const c1 = cards[1]
-      rail.scrollLeft = c1.offsetLeft - (rail.clientWidth - c1.offsetWidth) / 2
-      paint()
-    })
-
-    // tap a card: off centre, it slides in; centred, it opens
-    rail.addEventListener('click', (e) => {
-      const btn = e.target.closest('.card')
-      if (!btn) return
-      const r = btn.getBoundingClientRect(), rr = rail.getBoundingClientRect()
-      const off = (r.left + r.width / 2) - (rr.left + rr.width / 2)
-      if (Math.abs(off) > r.width / 3 && e.detail !== 0) { rail.scrollBy({ left: off, behavior: reduce ? 'auto' : 'smooth' }); return }
-      open(list[+btn.dataset.i], +btn.dataset.i, btn)
-    })
+    rail.nextElementSibling.innerHTML = list.map(() => '<i></i>').join('')
+    rail.setAttribute('role', 'group')
+    carousel(rail, list, isApp
+      ? { start: 1, off: 0.86, offOpacity: 0.72, gap: (w) => w * -0.01, open: (i, el) => open(list[i], i, el) }
+      : { start: 0, off: 0.92, offOpacity: 0.6, fit: true, gap: (w) => innerWidth >= 900 ? 26 : 10, open: (i, el) => open(list[i], i, el) })
   })
 
   // ---- the opened card ----
@@ -654,7 +730,7 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
     sheet.classList.remove('on'); scrim.classList.remove('on')
     document.body.style.overflow = ''
     setTimeout(() => { sheet.hidden = scrim.hidden = true }, reduce ? 0 : 450)
-    if (back) back.focus({ preventScroll: true })
+    if (back) back.focus({ preventScroll: true, focusVisible: false })
   }
   const TALK = { hue: 'blue', orb: true, k: 'Talk to ZEIT', n: 'Voice', h: 'Talk to ZEIT', more: 'Tap the orb and ask out loud. Zeit answers from your record and names where the answer came from.',
     q: 'What should I ask Dr. Weber on Thursday?', a: 'Ask about your HbA1c. It went from 5.2 to 5.4 % since 2021. Take your medicine list with you.', src: 'Lab letter · Mar 2023' }
