@@ -194,6 +194,7 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
   padding: 10px 20px; border-radius: 999px; border: 1px solid var(--hairline); color: var(--ink);
   min-height: 38px; transition: opacity .25s ease;
 }
+.rail-hint { margin: 0; }
 .rail-dots { display: flex; gap: 8px; justify-content: center; }
 .rail-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(14, 17, 22, 0.16); transition: all .35s var(--ease); }
 .rail-dot.on { background: var(--ink); width: 18px; border-radius: 3px; }
@@ -385,10 +386,30 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 .sb-plain b { display: block; font-size: var(--t-small); font-weight: 500; color: var(--blue); margin-bottom: 4px; }
 .sb-foot { margin: 18px 0 0; font-size: 11px; color: var(--ink-3); text-align: center; }
 
+/* ---- centred layout: every section's text sits on the centre line (the phone section keeps
+   its side-by-side layout) ---- */
+.hero { align-items: center; text-align: center; --orb: min(112vw, 760px); }
+.hero-words { align-items: center; }
+.hero-orb { left: 50%; right: auto; top: 50%; width: var(--orb); max-width: none; margin: calc(var(--orb) / -2) 0 0 calc(var(--orb) / -2); }
+.hero-foot { justify-content: center; gap: 10px; }
+.hero-foot span + span::before { content: "·"; margin-right: 10px; }
+.cards-head { text-align: center; }
+.about, .updates { text-align: center; }
+.lede { margin-left: auto; margin-right: auto; }
+.pillars li { grid-template-columns: 1fr; justify-items: center; gap: 6px; }
+.pillars .n { padding-top: 0; }
+.pillars p { max-width: 30em; margin-left: auto; margin-right: auto; }
+.optin-form { margin-left: auto; margin-right: auto; }
+.optin-msg { text-align: center; }
+.footer { text-align: center; }
+.foot-row { flex-direction: column; align-items: center; gap: 10px; }
+.foot-links { justify-content: center; }
+.foot-mark { text-align: center; }
+
 /* ---- wider screens ---- */
 @media (min-width: 760px) {
   :root { --page-pad: 56px; --section: 176px; }
-  .hero-orb { right: -10vw; top: 10%; width: 70vw; }
+  .hero { --orb: min(64vw, 760px); }
   .product { grid-template-columns: 1fr 1fr; align-items: center; max-width: 1180px; margin: 0 auto; }
   .about, .updates { max-width: 1180px; margin: 0 auto; }
   .pillars { display: grid; grid-template-columns: 1fr 1fr; column-gap: 56px; border-top: 0; }

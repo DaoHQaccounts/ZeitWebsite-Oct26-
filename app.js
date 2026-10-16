@@ -464,9 +464,14 @@
     const vx = (g.dx / Math.max(performance.now() - g.t, 1)) * 1000
     if (g.dx < -SWIPE || (vx < -FLICK && g.dx < -14)) return setFocus(focus + 1)
     if (g.dx > SWIPE || (vx > FLICK && g.dx > 14)) return setFocus(focus - 1)
-    setFocus(g.i)
-    openCard(g.i)
+    // one tap brings a side card to the centre; a double tap on the centre card opens it
+    const now = performance.now()
+    if (delta(g.i) !== 0) { lastTap = null; return setFocus(g.i) }
+    if (lastTap && lastTap.i === g.i && now - lastTap.t < 360) { lastTap = null; return openCard(g.i) }
+    lastTap = { i: g.i, t: now }
+    els[g.i].p.x = CARD.press; els[g.i].p.set(1)   // a small acknowledging press
   }
+  let lastTap = null
   window.addEventListener('pointerup', endGesture)
   window.addEventListener('pointercancel', endGesture)
 
