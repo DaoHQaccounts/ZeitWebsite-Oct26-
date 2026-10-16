@@ -75,6 +75,35 @@
   // and a white light drift on their own orbits. It breathes at rest; `energy` makes it
   // move more, `level` swells it like a voice (listening to you, or speaking back), and
   // `poke()` gives it the small startled squish of being touched.
+  // The colours it turns through, from the card system: each is [deep, mid, light].
+  const ORB_HUES = [
+    ['#e8a52a', '#f5c94f', '#fbe7a0'],   // yellow
+    ['#2f9c72', '#5fc493', '#bfe9cf'],   // green
+    ['#2a43d2', '#5f7fee', '#b9cdfb'],   // blue
+    ['#e47a2c', '#f39c5c', '#f9c89e'],   // orange
+    ['#d9497a', '#ee8cad', '#f8c8d8'],   // pink
+    ['#7a4ad8', '#a983ee', '#dac7fb'],   // purple
+    ['#2a43d2', '#5f7fee', '#b9cdfb'],   // blue
+  ]
+  // Blends travel around the colour wheel (HSL, shortest way round), never straight across
+  // it: blue to yellow passes through violet and pink instead of going muddy olive.
+  function hexHsl(h) {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255)
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, l = (mx + mn) / 2
+    let hu = 0
+    if (d) hu = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4
+    return [(hu * 60 + 360) % 360, d ? d / (1 - Math.abs(2 * l - 1)) : 0, l]
+  }
+  const ORB_HSL = ORB_HUES.map((set) => set.map(hexHsl))
+  // a colour at any point of the cycle, eased between neighbours so the shift never jumps
+  function hueAt(p, k, a = 1) {
+    const n = ORB_HSL.length, x = ((p % n) + n) % n, i = Math.floor(x), f = x - i
+    const e = f * f * (3 - 2 * f), A = ORB_HSL[i][k], B = ORB_HSL[(i + 1) % n][k]
+    let dh = B[0] - A[0]; if (dh > 180) dh -= 360; if (dh < -180) dh += 360
+    const h = (A[0] + dh * e + 360) % 360
+    return `hsla(${h.toFixed(1)},${((A[1] + (B[1] - A[1]) * e) * 100).toFixed(1)}%,${((A[2] + (B[2] - A[2]) * e) * 100).toFixed(1)}%,${a})`
+  }
+
   const ORBS = []
   class LiveOrb {
     constructor(canvas) {
@@ -127,16 +156,25 @@
       const cx = R + lx + Math.sin(t * 0.37 + this.seed) * R * 0.025
       const cy = R + ly + Math.cos(t * 0.29 + this.seed) * R * 0.025
 
-      // body: deep blue to periwinkle, lit from the top left
-      let gr = g.createLinearGradient(cx - size, cy - size, cx + size, cy + size)
-      gr.addColorStop(0, '#2a43d2'); gr.addColorStop(0.55, '#5f7fee'); gr.addColorStop(1, '#b9cdfb')
+      // colour: the orb turns through the palette, and the far side of the body is already
+      // on the next colour, so two hues are always melting into each other
+      const p = t * (0.28 + e * 0.12) + this.seed * 0.07
+      const turn = t * 0.35 + this.seed
+      const ux = Math.cos(turn) * size, uy = Math.sin(turn) * size
+
+      // body: lit side to shaded side, the light direction slowly turning with it
+      let gr = g.createLinearGradient(cx - ux, cy - uy, cx + ux, cy + uy)
+      for (let j = 0; j <= 4; j++) {
+        const q = j / 4
+        gr.addColorStop(q, hueAt(p + q * 0.9, q < 0.5 ? 0 : q < 0.9 ? 1 : 2))
+      }
       this.blob(cx, cy, this.edge(t, size, amp, spd), gr)
 
-      // the current: a deeper blue that circles slowly inside
+      // the current: a deeper tone of the colour that is coming next, circling inside
       const ca = t * (0.35 + e * 0.6) + this.seed
       const dx = cx + Math.cos(ca) * size * 0.28, dy = cy + Math.sin(ca) * size * 0.24
       gr = g.createRadialGradient(dx, dy, 0, dx, dy, size * 0.62)
-      gr.addColorStop(0, 'rgba(24, 38, 150, .85)'); gr.addColorStop(1, 'rgba(24, 38, 150, 0)')
+      gr.addColorStop(0, hueAt(p + 1.3, 0, 0.8)); gr.addColorStop(1, hueAt(p + 1.3, 0, 0))
       this.blob(dx, dy, this.edge(t * 1.3 + 7, size * 0.6, amp * 1.4, spd), gr)
 
       // the light: a soft white that drifts against the current
