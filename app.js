@@ -135,6 +135,15 @@
       rows: [['Dose', '400 µg daily'], ['When', 'with breakfast'], ['Started', '2021'], ['Status', 'paused 2022-06']],
       plain: 'A daily vitamin often taken before and during pregnancy. You paused it in June 2022.',
     },
+    {
+      id: 'vitd', title: 'Vitamin D', year: '2025', pill: 'Vitamin D · 32',
+      g: 'linear-gradient(160deg, #4fb48c 0%, #7ccba3 50%, #c4ead2 100%)',
+      label: 'Blood test · 5 results', num: 32, unit: 'ng/mL',
+      viz: () => VIZ.bars([18, 21, 24, 27, 29, 32], '#3e9e78'), sub: 'Up from 18 in 2021 · Ref 30–100',
+      idx: '22', code: 'LAB · 2025',
+      rows: [['Latest', '32 ng/mL'], ['Reference', '30–100 ng/mL'], ['First result', '18 ng/mL · 2021'], ['Results', '5']],
+      plain: 'Your vitamin D has climbed back into the normal range over the last four years.',
+    },
   ]
 
   const fmt = (c, v) => c.dec ? v.toFixed(c.dec) : Math.round(v).toLocaleString('en-US')
@@ -209,7 +218,7 @@
     return {
       el, dot, c, drawn: false,
       x: new Spring(0, SPRING), y: new Spring(ENTER_RAIL.y, SPRING), s: new Spring(1, SPRING),
-      o: new Spring(0, SPRING), r: new Spring(0, SPRING), p: new Spring(1, PRESS),
+      o: new Spring(0, SPRING), r: new Spring(0, SPRING), p: new Spring(1, PRESS), v: new Spring(0, SPRING),
     }
   })
   const measure = () => { cw = els[0].el.offsetWidth || 260 }
@@ -226,20 +235,26 @@
       // the deck: cards stacked behind the top one, each a little higher, smaller and turned
       const deckY = -ad * 14, deckS = 1 - ad * 0.06, deckR = d * 2.2, deckO = ad <= 2 ? 1 : 0
       // the rail: the app's resting layout
-      const railX = d * step(), railY = centred ? 0 : CARD.offDrop
-      const railS = centred ? 1 : CARD.off, railO = centred ? 1 : ad <= 1 ? CARD.offOpacity : 0
+      // two either side: the second pair is smaller, fainter and tucked under the first
+      const railX = ad <= 1 ? d * step() : Math.sign(d) * step() * 1.72
+      const railY = centred ? 0 : CARD.offDrop * ad
+      const railS = centred ? 1 : ad === 1 ? CARD.off : CARD.off * 0.88
+      // side cards stay solid and fade toward the page colour, so overlaps never show through
+      const railO = ad <= 2 ? 1 : 0
+      const railV = centred ? 0 : ad === 1 ? 1 - CARD.offOpacity : 0.72
       k.x.set(lerp(0, railX, t))
       k.y.set(lerp(deckY, railY, t))
       k.s.set(lerp(deckS, railS, t))
       k.r.set(lerp(deckR, 0, t))
       k.o.set(lerp(deckO, railO, t))
+      k.v.set(lerp(ad * 0.12, railV, t))
 
-      const visible = open && ad <= 1
+      const visible = open && ad <= 2
       k.el.classList.toggle('hi', centred)
       k.el.style.zIndex = 10 - ad
       k.el.style.pointerEvents = visible ? 'auto' : 'none'
       k.el.tabIndex = centred ? 0 : -1
-      k.el.setAttribute('aria-hidden', ad <= 1 ? 'false' : 'true')
+      k.el.setAttribute('aria-hidden', ad <= 2 ? 'false' : 'true')
       k.el.setAttribute('aria-label', 'Open ' + k.c.title + ' card')
       k.dot.classList.toggle('on', centred)
     })
@@ -250,11 +265,12 @@
   }
 
   loop.add((dt) => {
-    const busy = stepAll(els.flatMap((k) => [k.x, k.y, k.s, k.o, k.r, k.p]).concat(tilt), dt)
+    const busy = stepAll(els.flatMap((k) => [k.x, k.y, k.s, k.o, k.r, k.p, k.v]).concat(tilt), dt)
     const dx = drag ? drag.dx : 0
     for (const k of els) {
       k.el.style.transform = `translate3d(${k.x.x + dx}px, ${k.y.x}px, 0) rotateY(${tilt.x}deg) rotateZ(${k.r.x}deg) scale(${k.s.x * k.p.x})`
       k.el.style.opacity = clamp01(k.o.x)
+      k.el.style.setProperty('--veil', clamp01(k.v.x).toFixed(3))
     }
     return busy || !!drag
   })
@@ -300,7 +316,7 @@
     if (Math.abs(p - spread) < 0.001) return
     spread = p
     layout()
-    if (spread > 0.9) wake(els[focus])
+    if (spread > 0.9) { wake(els[focus]); setTimeout(() => els.forEach(wake), 500) }
   }
 
   layout()

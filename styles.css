@@ -146,6 +146,7 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
   transition: box-shadow .5s var(--ease);
 }
 .zc.hi .zc-face { box-shadow: var(--e2); }
+.zc-face::after { content: ""; position: absolute; inset: 0; z-index: 5; pointer-events: none; border-radius: inherit; background: var(--ground); opacity: var(--veil, 0); }
 .zc-field { position: relative; flex: none; height: 36%; background: var(--g); color: #fff; overflow: hidden; }
 .streaks {
   position: absolute; inset: -10% -20%; pointer-events: none; mix-blend-mode: soft-light; opacity: .55;
