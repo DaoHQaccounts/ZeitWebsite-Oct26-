@@ -118,6 +118,8 @@
       this.squish = new Spring(1, { k: 520, c: 16, m: 1 })  // a touch wobbles it
       this.look = { x: new Spring(0, SETTLE), y: new Spring(0, SETTLE) }
       this.visible = true
+      // only the hero orb turns through colours; the phone keeps the app's own blue orb
+      this.multi = canvas.dataset.orb === 'hero'
     }
     set(energy) { this.energy.set(energy) }
     pulse(v) { this.level.v += v * 9; this.level.set(0) }
@@ -164,9 +166,13 @@
 
       // body: lit side to shaded side, the light direction slowly turning with it
       let gr = g.createLinearGradient(cx - ux, cy - uy, cx + ux, cy + uy)
-      for (let j = 0; j <= 4; j++) {
-        const q = j / 4
-        gr.addColorStop(q, hueAt(p + q * 0.9, q < 0.5 ? 0 : q < 0.9 ? 1 : 2))
+      if (this.multi) {
+        for (let j = 0; j <= 4; j++) {
+          const q = j / 4
+          gr.addColorStop(q, hueAt(p + q * 0.9, q < 0.5 ? 0 : q < 0.9 ? 1 : 2))
+        }
+      } else {
+        gr.addColorStop(0, '#2a43d2'); gr.addColorStop(0.55, '#5f7fee'); gr.addColorStop(1, '#b9cdfb')
       }
       this.blob(cx, cy, this.edge(t, size, amp, spd), gr)
 
@@ -174,7 +180,8 @@
       const ca = t * (0.35 + e * 0.6) + this.seed
       const dx = cx + Math.cos(ca) * size * 0.28, dy = cy + Math.sin(ca) * size * 0.24
       gr = g.createRadialGradient(dx, dy, 0, dx, dy, size * 0.62)
-      gr.addColorStop(0, hueAt(p + 1.3, 0, 0.8)); gr.addColorStop(1, hueAt(p + 1.3, 0, 0))
+      if (this.multi) { gr.addColorStop(0, hueAt(p + 1.3, 0, 0.8)); gr.addColorStop(1, hueAt(p + 1.3, 0, 0)) }
+      else { gr.addColorStop(0, 'rgba(24, 38, 150, .85)'); gr.addColorStop(1, 'rgba(24, 38, 150, 0)') }
       this.blob(dx, dy, this.edge(t * 1.3 + 7, size * 0.6, amp * 1.4, spd), gr)
 
       // the light: a soft white that drifts against the current
