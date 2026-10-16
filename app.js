@@ -557,7 +557,10 @@
       heroWords.style.transform = `translateY(${-hp * 60}px)`
       heroWords.style.opacity = 1 - hp * 0.9
       heroFoot.style.opacity = 1 - hp * 2
-      heroOrb.style.transform = `translateY(${hp * 90}px) scale(${1 + hp * 0.15})`
+      // the orb drifts up with the words and dissolves, rather than sinking into the next section
+      heroOrb.style.transform = `translateY(${-hp * 40}px) scale(${1 - hp * 0.08})`
+      heroOrb.style.setProperty('--fade', (1 - Math.min(1, hp * 1.4)).toFixed(3))
+      if (hp > 0) heroOrb.classList.add('settled')
       // the phone drifts against the scroll, just enough to feel like depth
       const pr = phone.getBoundingClientRect()
       const pp = (pr.top + pr.height / 2 - vh / 2) / vh
