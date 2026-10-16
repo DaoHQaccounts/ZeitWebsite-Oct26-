@@ -839,7 +839,7 @@
     const steps = [...document.querySelectorAll('#loop-steps li')]
     const el = (id) => document.getElementById(id)
     const arc = el('sc-arc'), h = el('sc-h'), sub = el('sc-s'), time = el('sc-time'), line = el('sc-line'), done = el('sc-done'), bpm = el('sc-bpm')
-    const FULL = 918, SCAN = 6000
+    const FULL = 1000, SCAN = 6000
     let run = 0, face = 0, raf = 0, tids = []
     const wait = (ms) => new Promise((r) => tids.push(setTimeout(r, ms)))
     const step = (k) => steps.forEach((s, i) => s.classList.toggle('on', i === k))

@@ -64,9 +64,11 @@
           <div class="sc-bar"><span>ZEIT.SCAN</span><b id="sc-time">01:00</b></div>
           <p class="sc-h" id="sc-h">Looking for your face</p>
           <p class="sc-s" id="sc-s">Center your face in the frame</p>
-          <svg class="sc-ring" viewBox="0 0 300 300">
-            <circle cx="150" cy="150" r="146" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
-            <circle id="sc-arc" cx="150" cy="150" r="146" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="918" stroke-dashoffset="918" transform="rotate(-90 150 150)"/>
+          <!-- a tall oval, the screen's width less a margin, so the whole face fits inside;
+               the path starts at the top so the progress line runs clockwise from 12 o'clock -->
+          <svg class="sc-ring" viewBox="0 0 300 553" preserveAspectRatio="none">
+            <path d="M150 4 A146 272.5 0 1 1 150 549 A146 272.5 0 1 1 150 4" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+            <path id="sc-arc" d="M150 4 A146 272.5 0 1 1 150 549 A146 272.5 0 1 1 150 4" pathLength="1000" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="1000" stroke-dashoffset="1000" vector-effect="non-scaling-stroke"/>
           </svg>
           <span class="sc-line" id="sc-line"></span>
           <div class="sc-done" id="sc-done"><span>Pulse</span><b id="sc-bpm">62</b><i>bpm</i></div>
