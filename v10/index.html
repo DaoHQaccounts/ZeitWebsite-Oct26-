@@ -6,207 +6,302 @@
 <title>Zeit Health</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Zeit Health: the secure health superapp. Your family's health records in one place, in plain words.">
+<meta name="theme-color" content="#f3f5f8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
 <style>
-/* Zeit Health, website v10. Built from the call transcript: very simple, mobile first,
-   the app's card system, swipe and open. One file: HTML, CSS and a little JS.
-   Layout: one centred column; each section is a heading plus one swipe rail of cards. */
+/* Zeit Health, website B. Built from the call transcript: very simple, mobile first,
+   the app's card system (half image, coloured headline), swipe and open. One file.
+   Layout: the hero stays pinned; every section after it slides over it like a sheet.
+   One dark band (use cases) gives the page its rhythm. */
 :root {
   --ground: #f3f5f8;
+  --paper: #fbfcfd;
   --surface: #ffffff;
   --ink: #0e1116;
   --ink-2: #5b616b;
   --ink-3: #9aa0a9;
-  --hairline: rgba(14, 17, 22, 0.1);
+  --hairline: rgba(14, 17, 22, .09);
+  --night: #0b0d12;
+  --night-2: #151922;
+  --on-night: #f2f4f8;
+  --on-night-2: #8d94a1;
 
   --font: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
   --mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
-  --cw: min(76vw, 300px);              /* card width */
+  --cw: min(78vw, 312px);
   --ease: cubic-bezier(.16, .84, .24, 1);
-  --e1: 0 1px 2px rgba(12,14,18,.05), 0 10px 24px rgba(12,14,18,.06);
-  --e2: 0 1px 2px rgba(12,14,18,.06), 0 18px 40px rgba(12,14,18,.12);
+  --e1: 0 1px 1px rgba(12,14,18,.04), 0 6px 14px rgba(12,14,18,.05), 0 24px 48px -12px rgba(12,14,18,.12);
+  --e2: 0 1px 1px rgba(12,14,18,.05), 0 10px 24px rgba(12,14,18,.08), 0 40px 80px -20px rgba(12,14,18,.22);
+  --grain-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --grain-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   color-scheme: light;
 }
 
-/* the card hues, from the app: --g is the image gradient, --c the headline colour */
-.blue   { --g: linear-gradient(140deg, #2f48d4, #5876ea 55%, #a8c1fa); --c: #2f48d4; }
-.orange { --g: linear-gradient(160deg, #ee9a4c, #f4835f 55%, #f8b98c); --c: #c9581f; }
-.purple { --g: linear-gradient(165deg, #9d6fe6, #c59ff0 50%, #f2c9f1); --c: #6c3fc9; }
-.yellow { --g: linear-gradient(170deg, #f2b33f, #f9d86a 50%, #fbeca3); --c: #a0700a; }
-.green  { --g: linear-gradient(160deg, #3e9e78, #7ccba3 50%, #c4ead2); --c: #237a59; }
-.pink   { --g: linear-gradient(160deg, #d9497a, #ee8cad 55%, #f8c8d8); --c: #b8335f; }
+/* the card hues, from the app: --a deep, --b mid, --l light; --c is the headline colour */
+.blue   { --a: #2a43d2; --b: #5f7fee; --l: #b9cdfb; --c: #2f48d4; }
+.orange { --a: #e0702a; --b: #f39c5c; --l: #f9c89e; --c: #c9581f; }
+.purple { --a: #7a4ad8; --b: #a983ee; --l: #e2c9f7; --c: #6c3fc9; }
+.yellow { --a: #e2a020; --b: #f5c94f; --l: #fbe7a0; --c: #9a6a06; }
+.green  { --a: #2f9c72; --b: #5fc493; --l: #bfe9cf; --c: #217653; }
+.pink   { --a: #d9497a; --b: #ee8cad; --l: #f8c8d8; --c: #b8335f; }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html { scroll-behavior: smooth; }
 html, body { margin: 0; overflow-x: clip; }
 body {
   font-family: var(--font); font-size: 17px; line-height: 1.5;
   color: var(--ink); background: var(--ground);
-  -webkit-font-smoothing: antialiased;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
 }
 button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; padding: 0; text-align: left; }
-:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 6px; }
-.gutter { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; border-radius: 8px; }
+.gutter { padding-left: max(22px, env(safe-area-inset-left, 0px)); padding-right: max(22px, env(safe-area-inset-right, 0px)); }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
 
-/* ---- top bar: the wordmark only ---- */
+/* ---- top bar ---- */
 .top {
-  position: fixed; inset: 0 0 auto 0; z-index: 20;
+  position: fixed; inset: 0 0 auto 0; z-index: 30;
   display: flex; justify-content: space-between; align-items: center;
-  padding-block: calc(16px + env(safe-area-inset-top, 0px)) 16px;
-  transition: background .3s ease;
+  padding-block: calc(18px + env(safe-area-inset-top, 0px)) 18px;
+  transition: background .4s ease, color .4s ease;
 }
-.top.solid { background: rgba(243,245,248,.82); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
-.mark { font-weight: 600; font-size: 15px; letter-spacing: .32em; text-decoration: none; color: var(--ink); }
-.top a.go { font-size: 13px; color: var(--ink-2); text-decoration: none; }
+.top.solid { background: rgba(243,245,248,.72); -webkit-backdrop-filter: saturate(1.6) blur(20px); backdrop-filter: saturate(1.6) blur(20px); }
+.top.dark { color: var(--on-night); }
+.top.dark.solid { background: rgba(11,13,18,.6); }
+.mark { font-weight: 600; font-size: 14px; letter-spacing: .38em; text-decoration: none; color: inherit; }
+.top a.go {
+  font-size: 13px; text-decoration: none; color: inherit;
+  padding: 8px 14px; border-radius: 999px; border: 1px solid currentColor; border-color: color-mix(in srgb, currentColor 22%, transparent);
+  transition: background .25s ease;
+}
+.top a.go:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
 
-/* ---- 1 · hero: short words on an empty screen; it stays put, nothing else up here ---- */
+/* ---- 1 · hero: pinned. The page slides over it, and it is still there on the way back up ---- */
 .hero {
-  position: relative; min-height: 92vh; min-height: 92svh;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; overflow: hidden;
+  position: sticky; top: 0; z-index: 0;
+  height: 100vh; height: 100svh; overflow: hidden;
+  display: grid; place-items: center; text-align: center;
+  background: var(--ground);
 }
-.hero::before {      /* a soft brand wash, the only colour up here */
-  content: ""; position: absolute; width: 140vw; max-width: 900px; aspect-ratio: 1;
-  left: 50%; top: 62%; transform: translate(-50%, -50%);
-  background:
-    radial-gradient(closest-side at 38% 42%, rgba(88,118,234,.55), transparent 70%),
-    radial-gradient(closest-side at 64% 52%, rgba(221,162,238,.45), transparent 70%),
-    radial-gradient(closest-side at 50% 70%, rgba(124,203,163,.35), transparent 70%);
-  filter: blur(40px); opacity: .7; pointer-events: none;
-  animation: breathe 14s ease-in-out infinite alternate;
+.glow { position: absolute; inset: 0; pointer-events: none; }
+.glow i {
+  position: absolute; border-radius: 50%; filter: blur(60px); opacity: .55; mix-blend-mode: multiply;
+  animation: float 22s ease-in-out infinite alternate;
 }
-@keyframes breathe { to { transform: translate(-50%, -52%) scale(1.06) rotate(8deg); } }
+.glow i:nth-child(1) { width: 62vmax; height: 62vmax; left: -18vmax; top: 38%; background: #6d86ef; }
+.glow i:nth-child(2) { width: 48vmax; height: 48vmax; right: -16vmax; top: 30%; background: #c8a2f2; animation-duration: 26s; animation-delay: -6s; }
+.glow i:nth-child(3) { width: 40vmax; height: 40vmax; left: 30%; top: 64%; background: #f3b58c; animation-duration: 30s; animation-delay: -12s; opacity: .45; }
+.glow i:nth-child(4) { width: 30vmax; height: 30vmax; left: 8%; top: 72%; background: #8fd3b0; animation-duration: 24s; animation-delay: -3s; opacity: .4; }
+@keyframes float {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(4vmax, -3vmax) scale(1.08); }
+  100% { transform: translate(-3vmax, 2vmax) scale(.96); }
+}
+.hero::after { content: ""; position: absolute; inset: 0; background: var(--grain-dark); opacity: .22; pointer-events: none; }
+.hero-in { position: relative; z-index: 1; will-change: transform, opacity; }
+.hero .kicker { margin: 0 0 26px; color: var(--ink-2); }
 .hero h1 {
-  position: relative; margin: 0; font-weight: 600;
-  font-size: clamp(44px, 13vw, 104px); line-height: .98; letter-spacing: -.05em; text-wrap: balance;
+  margin: 0; font-weight: 500;
+  font-size: clamp(52px, 15vw, 148px); line-height: .92; letter-spacing: -.06em; text-wrap: balance;
 }
-.hero p { position: relative; margin: 22px 0 0; max-width: 22em; color: var(--ink-2); font-size: 17px; }
-.hero .cue { position: absolute; bottom: max(28px, env(safe-area-inset-bottom, 0px)); margin: 0; font-size: 13px; color: var(--ink-3); }
+.hero h1 span { display: block; animation: rise 1.1s var(--ease) both; }
+.hero h1 span:nth-child(2) { animation-delay: .08s; }
+.hero h1 span:nth-child(3) { animation-delay: .16s; }
+@keyframes rise { from { transform: translateY(.25em); opacity: 0; filter: blur(8px); } }
+.hero .sub { margin: 28px auto 0; max-width: 21em; color: var(--ink-2); font-size: 17px; line-height: 1.5; animation: rise 1.1s var(--ease) .3s both; }
+.hero-foot {
+  position: absolute; z-index: 1; left: 0; right: 0; bottom: max(26px, env(safe-area-inset-bottom, 0px));
+  display: flex; justify-content: space-between; color: var(--ink-3);
+}
+.hero-foot .line { position: relative; padding-left: 18px; }
+.hero-foot .line::before { content: ""; position: absolute; left: 0; top: 50%; width: 10px; height: 1px; background: currentColor; }
 
-/* ---- sections: centred heading, then a rail ---- */
-section.part { padding-block: 96px 24px; }
-.head { text-align: center; max-width: 34rem; margin: 0 auto; }
-.eyebrow { margin: 0 0 12px; font-family: var(--mono); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
-.head h2 { margin: 0; font-size: clamp(32px, 8.4vw, 56px); font-weight: 600; line-height: 1.02; letter-spacing: -.04em; text-wrap: balance; }
-.head .soft { color: var(--ink-3); }
+/* ---- everything after the hero slides over it ---- */
+.over { position: relative; z-index: 2; }
+.sheetpart {
+  position: relative; background: var(--paper);
+  border-radius: 36px 36px 0 0; margin-top: -36px;
+  box-shadow: 0 -1px 0 rgba(14,17,22,.04), 0 -30px 60px -30px rgba(12,14,18,.18);
+}
+.over > .sheetpart:first-child { margin-top: 0; }
+section.part { padding-block: 104px 72px; }
+.night { background: var(--night); color: var(--on-night); }
+.night .lead { color: var(--on-night-2); }
+.night .dots i { background: rgba(255,255,255,.18); }
+.night .dots i.on { background: var(--on-night); }
 
-/* ---- the rail: native swipe with snap ---- */
+.head { text-align: center; max-width: 36rem; margin: 0 auto; }
+.head .mono { margin: 0 0 18px; color: var(--ink-3); display: inline-flex; gap: 10px; align-items: center; }
+.night .head .mono { color: var(--on-night-2); }
+.head .mono b { font-weight: 500; color: inherit; opacity: .55; }
+.head h2 { margin: 0; font-size: clamp(36px, 9.6vw, 72px); font-weight: 500; line-height: .98; letter-spacing: -.05em; text-wrap: balance; }
+.lead { margin: 20px auto 0; max-width: 26em; color: var(--ink-2); font-size: 17px; }
+
+/* ---- the rail: native swipe, snap, and the app's off-centre scale ---- */
 .rail {
-  display: flex; gap: 14px; margin-top: 40px;
+  display: flex; gap: 14px; margin-top: 52px;
   overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
-  padding-block: 8px 24px; scrollbar-width: none;
+  padding-block: 12px 36px; scrollbar-width: none;
   padding-inline: calc(50% - var(--cw) / 2); scroll-padding-inline: calc(50% - var(--cw) / 2);
 }
 .rail::-webkit-scrollbar { display: none; }
 .dots { display: flex; justify-content: center; gap: 8px; }
-.dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(14,17,22,.16); transition: width .35s var(--ease), background .35s ease; }
-.dots i.on { width: 20px; background: var(--ink); }
-.hint { margin: 14px 0 0; text-align: center; font-size: 13px; color: var(--ink-3); }
+.dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(14,17,22,.15); transition: width .45s var(--ease), background .3s ease; }
+.dots i.on { width: 22px; background: var(--ink); }
+.hint { margin: 18px 0 0; text-align: center; color: var(--ink-3); }
 
-/* ---- the card: half image on top, the information below, a coloured headline ---- */
+/* ---- the card: half image, information below, coloured headline ---- */
 .card {
+  --s: 1;
   flex: none; width: var(--cw); scroll-snap-align: center;
-  display: flex; flex-direction: column; aspect-ratio: 3 / 4.1;
-  border-radius: 24px; overflow: hidden; background: var(--surface);
-  box-shadow: var(--e1); transition: transform .4s var(--ease), box-shadow .4s var(--ease);
+  display: flex; flex-direction: column;
+  border-radius: 26px; overflow: hidden; background: var(--surface);
+  box-shadow: var(--e1);
+  transform: scale(var(--s)); opacity: var(--o, 1);
+  transition: box-shadow .5s var(--ease), transform .25s ease-out, opacity .25s ease-out;
 }
 .card:hover { box-shadow: var(--e2); }
-.card:active { transform: scale(.97); }
+.card:active { transform: scale(calc(var(--s) * .97)); }
 .img {
-  position: relative; flex: 0 0 50%; background: var(--g); overflow: hidden; color: #fff;
+  position: relative; aspect-ratio: 1 / 1.02; overflow: hidden; color: #fff; isolation: isolate;
+  background:
+    radial-gradient(120% 90% at var(--x, 20%) var(--y, 10%), var(--l) 0%, transparent 55%),
+    radial-gradient(90% 80% at 100% 100%, var(--b) 0%, transparent 70%),
+    linear-gradient(160deg, var(--a), var(--b));
 }
-.img::before, .img::after { content: ""; position: absolute; border-radius: 50%; filter: blur(22px); }
-.img::before { width: 70%; aspect-ratio: 1; left: var(--x, 10%); top: var(--y, 15%); background: rgba(255,255,255,.45); }
-.img::after  { width: 50%; aspect-ratio: 1; right: -10%; bottom: -25%; background: rgba(255,255,255,.3); }
+.img::before {      /* a slow light moving across the image */
+  content: ""; position: absolute; inset: -30%; z-index: -1;
+  background: radial-gradient(closest-side, rgba(255,255,255,.38), transparent);
+  transform: translate(var(--lx, -20%), var(--ly, -10%));
+  animation: light 18s ease-in-out infinite alternate;
+}
+@keyframes light { to { transform: translate(calc(var(--lx, -20%) * -1), calc(var(--ly, -10%) * -1 + 10%)); } }
+.img::after { content: ""; position: absolute; inset: 0; background: var(--grain-light); opacity: .16; mix-blend-mode: overlay; pointer-events: none; }
 .img .tag {
-  position: absolute; z-index: 1; left: 16px; top: 14px; right: 16px;
-  display: flex; justify-content: space-between;
-  font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  position: absolute; left: 18px; right: 18px; top: 16px;
+  display: flex; justify-content: space-between; opacity: .92;
 }
-.img .big {
-  position: absolute; z-index: 1; left: 16px; bottom: 12px;
-  font-size: 44px; font-weight: 500; letter-spacing: -.04em; line-height: 1;
+.img .art { position: absolute; left: 18px; right: 18px; bottom: 18px; }
+.img .art svg { display: block; width: 100%; height: auto; overflow: visible; }
+.img .quote {
+  position: absolute; left: 18px; right: 18px; bottom: 20px;
+  font-size: 23px; font-weight: 500; line-height: 1.12; letter-spacing: -.03em; text-wrap: balance;
 }
-.img .big small { font-size: 15px; letter-spacing: 0; margin-left: 4px; opacity: .9; }
-.body { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 16px 18px 18px; min-height: 0; }
-.body h3 { margin: 0; color: var(--c); font-size: 22px; font-weight: 600; line-height: 1.1; letter-spacing: -.025em; text-wrap: balance; }
-.body p { margin: 0; color: var(--ink-2); font-size: 14.5px; line-height: 1.45; }
-.body .more { margin-top: auto; font-size: 13px; color: var(--ink-3); }
+.img .quote::before { content: "“"; display: block; font-size: 46px; line-height: .6; margin-bottom: 8px; opacity: .7; }
+.img .val { position: absolute; left: 18px; bottom: 16px; font-size: 52px; font-weight: 400; letter-spacing: -.05em; line-height: 1; font-variant-numeric: tabular-nums; }
+.img .val small { font-size: 15px; letter-spacing: 0; margin-left: 5px; opacity: .85; }
+.img .spark { position: absolute; right: 16px; bottom: 20px; width: 44%; }
+.img .spark svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+.body { display: flex; flex-direction: column; padding: 18px 20px 18px; }
+.body h3 { margin: 0; color: var(--c); font-size: 23px; font-weight: 600; line-height: 1.08; letter-spacing: -.03em; text-wrap: balance; }
+.body p { margin: 8px 0 0; color: var(--ink-2); font-size: 14.5px; line-height: 1.45; }
+.body .foot {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--hairline); color: var(--ink-3);
+}
+.body .foot .open { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); }
+.body .foot svg { width: 13px; height: 13px; }
 
 /* ---- 4 · the app: the same cards, in a phone ---- */
-.phone {
-  margin: 44px auto 0; width: min(84vw, 330px); aspect-ratio: 390 / 820;
-  border-radius: 48px; padding: 10px; background: #0d0f13; box-shadow: var(--e2);
+.stage { position: relative; margin-top: 56px; display: grid; place-items: center; }
+.stage::before {
+  content: ""; position: absolute; width: min(120vw, 760px); aspect-ratio: 1; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(95,127,238,.22), rgba(169,131,238,.12) 50%, transparent);
+  filter: blur(20px); pointer-events: none;
 }
+.phone {
+  position: relative; width: min(82vw, 340px); aspect-ratio: 390 / 830;
+  border-radius: 54px; padding: 11px;
+  background: linear-gradient(145deg, #2a2d33, #0c0d10 40%, #1d1f24);
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.08), 0 2px 4px rgba(12,14,18,.1), 0 50px 100px -30px rgba(12,14,18,.45);
+}
+.phone::before, .phone::after { content: ""; position: absolute; right: -3px; width: 3px; border-radius: 0 2px 2px 0; background: #22252b; }
+.phone::before { top: 22%; height: 11%; }
+.phone::after { left: -3px; right: auto; border-radius: 2px 0 0 2px; top: 18%; height: 6%; }
 .screen {
-  position: relative; height: 100%; border-radius: 39px; overflow: hidden;
-  background: linear-gradient(180deg, #e8edfb, #f3f5f8 45%);
+  position: relative; height: 100%; border-radius: 44px; overflow: hidden;
+  background: linear-gradient(180deg, #e7ecfb 0%, #f3f5f8 42%);
   display: flex; flex-direction: column;
 }
-.status { display: flex; justify-content: space-between; align-items: center; padding: 14px 26px 0; font-size: 13px; font-weight: 600; }
-.island { width: 84px; height: 24px; border-radius: 14px; background: #0d0f13; }
-.status .bat { width: 22px; height: 11px; border-radius: 3px; border: 1.5px solid var(--ink); }
-.greet { padding: 26px 22px 0; }
-.greet h3 { margin: 0; font-size: 27px; font-weight: 700; line-height: 1.1; letter-spacing: -.04em; }
-.greet p { margin: 6px 0 0; color: var(--ink-2); font-size: 14px; }
-.phone .rail { --cw: min(56vw, 206px); margin-top: auto; gap: 10px; padding-block: 6px 14px; }
-.phone .card { border-radius: 20px; }
-.phone .img .big { font-size: 34px; }
-.phone .body { padding: 12px 14px 14px; gap: 5px; }
+.status { display: flex; justify-content: space-between; align-items: center; padding: 15px 28px 0; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.island { width: 30%; height: 26px; border-radius: 16px; background: #0b0c0e; }
+.bat { width: 23px; height: 11px; border-radius: 3.5px; border: 1.4px solid var(--ink); position: relative; }
+.bat::after { content: ""; position: absolute; inset: 1.5px 6px 1.5px 1.5px; border-radius: 1.5px; background: var(--ink); }
+.greet { padding: 30px 24px 0; }
+.greet h3 { margin: 0; font-size: 28px; font-weight: 700; line-height: 1.08; letter-spacing: -.045em; }
+.greet p { margin: 8px 0 0; color: var(--ink-2); font-size: 14px; }
+.phone .rail { --cw: min(54vw, 214px); margin-block: auto 0; gap: 8px; padding-block: 10px 16px; }
+.phone .card { border-radius: 22px; box-shadow: 0 1px 1px rgba(12,14,18,.04), 0 12px 28px -8px rgba(12,14,18,.16); }
+.phone .img .val { font-size: 38px; left: 14px; bottom: 12px; }
+.phone .img .tag { left: 14px; right: 14px; top: 12px; font-size: 9.5px; }
+.phone .img .spark { right: 12px; bottom: 16px; }
+.phone .body { padding: 13px 14px 14px; }
 .phone .body h3 { font-size: 17px; }
-.phone .body p { font-size: 12px; }
-.phone .dots { margin-bottom: 14px; }
-.nav { display: flex; justify-content: space-around; padding: 12px 10px calc(14px); background: rgba(255,255,255,.8); border-top: 1px solid var(--hairline); font-size: 10.5px; color: var(--ink-3); }
+.phone .body p { font-size: 12px; margin-top: 4px; }
+.phone .body .foot { display: none; }
+.phone .dots { margin-bottom: 16px; }
+.phone .dots i { height: 5px; width: 5px; }
+.phone .dots i.on { width: 18px; }
+.nav { display: flex; justify-content: space-around; padding: 10px 8px 22px; background: rgba(255,255,255,.75); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-top: 1px solid var(--hairline); font-size: 10px; color: var(--ink-3); }
 .nav span { display: flex; flex-direction: column; align-items: center; gap: 3px; }
 .nav span.on { color: var(--ink); }
-.nav svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; }
+.nav svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
 
 /* ---- footer ---- */
-footer { padding-block: 96px 40px; text-align: center; }
-footer .mark { display: inline-block; font-size: 13px; }
-footer p { margin: 10px auto 0; max-width: 34em; font-size: 13px; color: var(--ink-3); }
+footer { padding-block: 88px 0; background: var(--paper); overflow: hidden; }
+.foot-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 24px; color: var(--ink-3); border-top: 1px solid var(--hairline); padding-top: 22px; }
+footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
+.foot-notes { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+.foot-mark {
+  margin: 48px 0 -0.18em; text-align: center; font-weight: 600;
+  font-size: clamp(96px, 34vw, 420px); line-height: 1; letter-spacing: .02em;
+  background: linear-gradient(180deg, rgba(14,17,22,.1), rgba(14,17,22,0) 85%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; user-select: none;
+}
 
 /* ---- the opened card: rises from the bottom in the card's colour ---- */
-.scrim { position: fixed; inset: 0; z-index: 40; background: rgba(10,12,16,.4); opacity: 0; transition: opacity .3s ease; }
+.scrim { position: fixed; inset: 0; z-index: 40; background: rgba(8,10,14,.42); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); opacity: 0; transition: opacity .35s ease; }
 .scrim.on { opacity: 1; }
 .sheet {
-  position: fixed; z-index: 41; left: 50%; bottom: 0; width: min(100%, 520px);
-  max-height: 88vh; max-height: 88svh; overflow-y: auto;
-  border-radius: 28px 28px 0 0; background: var(--surface);
-  transform: translate(-50%, 104%); transition: transform .5s var(--ease);
+  position: fixed; z-index: 41; left: 50%; bottom: 0; width: min(100%, 540px);
+  max-height: 90vh; max-height: 90svh; overflow-y: auto; overscroll-behavior: contain;
+  border-radius: 30px 30px 0 0; background: var(--surface);
+  transform: translate(-50%, 104%); transition: transform .6s var(--ease);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .sheet.on { transform: translate(-50%, 0); }
-.sheet .img { height: 190px; flex: none; }
-.sheet .img .big { font-size: 56px; }
+.sheet .img { aspect-ratio: auto; height: 230px; }
+.sheet .img .quote { font-size: 28px; }
+.sheet .img .val { font-size: 64px; }
+.sheet .grab { position: absolute; z-index: 2; left: 50%; top: 8px; width: 38px; height: 4px; margin-left: -19px; border-radius: 2px; background: rgba(255,255,255,.6); }
 .sheet .x {
-  position: absolute; z-index: 2; right: 14px; top: 12px; width: 34px; height: 34px; border-radius: 50%;
-  display: grid; place-items: center; background: rgba(255,255,255,.28); color: #fff;
+  position: absolute; z-index: 2; right: 14px; top: 14px; width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center; background: rgba(255,255,255,.22); color: #fff;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
 }
-.sheet .x:focus-visible { outline-color: #fff; }
-.sheet .img .tag { right: 60px; }
-.sheet .body { padding: 22px 24px 30px; gap: 12px; }
-.sheet .body h3 { font-size: 28px; }
-.sheet .body p { font-size: 16px; }
-.qa { margin-top: 6px; display: flex; flex-direction: column; gap: 10px; }
-.qa .you { align-self: flex-end; max-width: 85%; padding: 10px 14px; border-radius: 18px 18px 4px 18px; background: var(--ink); color: #fff; font-size: 15px; }
-.qa .zeit { align-self: flex-start; max-width: 90%; padding: 10px 14px; border-radius: 18px 18px 18px 4px; background: var(--ground); font-size: 15px; }
-.qa .src { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--ink-3); }
-.rows { margin: 6px 0 0; padding: 0; list-style: none; }
-.rows li { display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-top: 1px solid var(--hairline); font-size: 15px; font-variant-numeric: tabular-nums; }
+.sheet .img .tag { top: 22px; right: 62px; }
+.sheet .body { padding: 24px 24px 32px; }
+.sheet .body h3 { font-size: 30px; }
+.sheet .body > p { font-size: 16px; }
+.qa { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+.qa .you { align-self: flex-end; max-width: 85%; padding: 11px 15px; border-radius: 20px 20px 6px 20px; background: var(--ink); color: #fff; font-size: 15px; }
+.qa .zeit { align-self: flex-start; max-width: 90%; padding: 11px 15px; border-radius: 20px 20px 20px 6px; background: var(--ground); font-size: 15px; }
+.qa .src { color: var(--ink-3); font-size: 10px; }
+.rows { margin: 20px 0 0; padding: 0; list-style: none; }
+.rows li { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid var(--hairline); font-size: 15px; font-variant-numeric: tabular-nums; }
 .rows li span:first-child { color: var(--ink-2); }
-.note { font-size: 12.5px; color: var(--ink-3); }
+.note { margin-top: 18px !important; font-size: 12.5px !important; color: var(--ink-3) !important; }
 
 @media (min-width: 900px) {
-  :root { --cw: 300px; }
-  section.part { padding-block: 140px 24px; }
+  :root { --cw: 330px; }
+  section.part { padding-block: 150px 96px; }
+  .rail { gap: 22px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .hero::before { animation: none; }
+  .glow i, .img::before, .hero h1 span, .hero .sub { animation: none; }
   .card, .sheet, .scrim { transition: none; }
 }
 </style>
@@ -218,148 +313,204 @@ footer p { margin: 10px auto 0; max-width: 34em; font-size: 13px; color: var(--i
   <a class="go" href="#app">See the app</a>
 </header>
 
-<main>
-  <!-- 1 · HERO: short words over the screen. A real section, so it is there again on the way up. -->
-  <section class="hero gutter" id="hero">
-    <h1>The secure health superapp.</h1>
-    <p>Your family's health records in one place, in plain words.</p>
-    <p class="cue">Scroll</p>
-  </section>
+<!-- 1 · HERO: short words over the screen, nothing else. Pinned, so it is there again on the way up. -->
+<section class="hero gutter" id="hero" aria-label="Zeit Health">
+  <div class="glow" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="hero-in" id="hero-in">
+    <p class="kicker mono">Zeit Health</p>
+    <h1><span>The secure</span> <span>health</span> <span>superapp.</span></h1>
+    <p class="sub">Your family's health records in one place, explained in plain words.</p>
+  </div>
+  <div class="hero-foot gutter mono" aria-hidden="true"><span class="line">Private by default</span><span>Scroll</span></div>
+</section>
 
+<div class="over">
   <!-- 2 · HOW IT WORKS (transcript: "real system / rail system"; confirm with Minh) -->
-  <section class="part" id="how" aria-labelledby="how-h">
+  <section class="part sheetpart" id="how" aria-labelledby="how-h">
     <div class="head gutter">
-      <p class="eyebrow">How it works</p>
-      <h2 id="how-h">Your records become<br><span class="soft">one clear picture.</span></h2>
+      <p class="mono"><b>01</b>How it works</p>
+      <h2 id="how-h">Your records become one clear picture.</h2>
+      <p class="lead">Three steps. You share, Zeit sorts, you read it in plain words.</p>
     </div>
     <div class="rail" data-set="how" aria-label="How it works, three steps"></div>
     <div class="dots" aria-hidden="true"></div>
-    <p class="hint">Swipe · Tap a card to open it</p>
+    <p class="hint mono">Swipe · Tap to open</p>
   </section>
 
-  <!-- 3 · USE CASES -->
-  <section class="part" id="uses" aria-labelledby="uses-h">
+  <!-- 3 · USE CASES: the one dark band -->
+  <section class="part sheetpart night" id="uses" aria-labelledby="uses-h">
     <div class="head gutter">
-      <p class="eyebrow">Use cases</p>
-      <h2 id="uses-h">Ask your record.<br><span class="soft">Get a plain answer.</span></h2>
+      <p class="mono"><b>02</b>Use cases</p>
+      <h2 id="uses-h">Ask your record. Get a plain answer.</h2>
+      <p class="lead">Every answer names the letter or result it came from.</p>
     </div>
     <div class="rail" data-set="uses" aria-label="Use cases"></div>
     <div class="dots" aria-hidden="true"></div>
   </section>
 
   <!-- 4 · THE APP: the same card system, swipe and open, inside a phone -->
-  <section class="part" id="app" aria-labelledby="app-h">
+  <section class="part sheetpart" id="app" aria-labelledby="app-h">
     <div class="head gutter">
-      <p class="eyebrow">The app</p>
-      <h2 id="app-h">Swipe through.<br><span class="soft">Open a card.</span></h2>
+      <p class="mono"><b>03</b>The app</p>
+      <h2 id="app-h">Swipe through. Open a card.</h2>
+      <p class="lead">One card for each thing that matters. Try it.</p>
     </div>
-    <div class="phone">
-      <div class="screen">
-        <div class="status" aria-hidden="true"><span>9:41</span><span class="island"></span><span class="bat"></span></div>
-        <div class="greet">
-          <h3>Hi Katrin,<br>here is your record.</h3>
-          <p>One minute for you.</p>
+    <div class="stage">
+      <div class="phone">
+        <div class="screen">
+          <div class="status" aria-hidden="true"><span>9:41</span><span class="island"></span><span class="bat"></span></div>
+          <div class="greet">
+            <h3>Hi Katrin,<br>here is your record.</h3>
+            <p>One minute for you.</p>
+          </div>
+          <div class="rail" data-set="app" aria-label="Katrin's cards in the app"></div>
+          <div class="dots" aria-hidden="true"></div>
+          <nav class="nav" aria-hidden="true">
+            <span class="on"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/></svg>Home</span>
+            <span><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3.2"/></svg>Vault</span>
+            <span><svg viewBox="0 0 24 24"><path d="M5 5h14v10H9l-4 4z"/></svg>Chat</span>
+            <span><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>Profile</span>
+          </nav>
         </div>
-        <div class="rail" data-set="app" aria-label="Katrin's cards in the app"></div>
-        <div class="dots" aria-hidden="true"></div>
-        <nav class="nav" aria-hidden="true">
-          <span class="on"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/></svg>Home</span>
-          <span><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3.2"/></svg>Vault</span>
-          <span><svg viewBox="0 0 24 24"><path d="M5 5h14v10H9l-4 4z"/></svg>Chat</span>
-          <span><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>Profile</span>
-        </nav>
       </div>
     </div>
   </section>
-</main>
 
-<footer class="gutter">
-  <span class="mark">ZEIT</span>
-  <p>Examples use Katrin Albers, 52. She is fictional, and so are her values.</p>
-  <p>Friendly support from Zeit Health, not medical advice. Discuss results with your doctor. Urgent symptoms: call 112.</p>
-  <p>© 2026 Zeit Health</p>
-</footer>
+  <footer class="sheetpart gutter">
+    <div class="foot-row mono"><span class="mark">ZEIT</span><span>© 2026 Zeit Health</span></div>
+    <div class="foot-notes">
+      <p>Examples use Katrin Albers, 52. She is fictional, and so are her values.</p>
+      <p>Friendly support from Zeit Health, not medical advice. Discuss results with your doctor. Urgent symptoms: call 112.</p>
+    </div>
+    <div class="foot-mark" aria-hidden="true">ZEIT</div>
+  </footer>
+</div>
 
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-h" hidden></div>
 
 <script>
 (() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  // ---- Small white drawings for the card images ----
+  const ART = {
+    share: `<svg viewBox="0 0 200 92"><g fill="rgba(255,255,255,.16)" stroke="#fff" stroke-width="1.2">
+      <rect x="18" y="14" width="62" height="78" rx="7" transform="rotate(-9 49 53)"/>
+      <rect x="66" y="6" width="62" height="78" rx="7"/>
+      <rect x="116" y="14" width="62" height="78" rx="7" transform="rotate(9 147 53)"/></g>
+      <g stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".85">
+      <path d="M76 22h34M76 32h42M76 42h26"/><rect x="76" y="54" width="42" height="18" rx="3" fill="none"/></g></svg>`,
+    sort: `<svg viewBox="0 0 200 92"><g stroke="#fff" stroke-width="1.2" stroke-linecap="round">
+      <path d="M8 12h184M8 38h184M8 64h184M8 90h184" opacity=".25"/></g>
+      <g fill="#fff" font-family="Geist Mono, monospace" font-size="8.5" letter-spacing=".5">
+      <text x="8" y="28">HbA1c</text><text x="80" y="28" opacity=".7">MAR 2023</text><text x="192" y="28" text-anchor="end">5.4 %</text>
+      <text x="8" y="54">Vitamin D</text><text x="80" y="54" opacity=".7">FEB 2025</text><text x="192" y="54" text-anchor="end">32 ng/mL</text>
+      <text x="8" y="80">Pulse</text><text x="80" y="80" opacity=".7">2024</text><text x="192" y="80" text-anchor="end">61 bpm</text></g></svg>`,
+    picture: `<svg viewBox="0 0 200 92"><rect x="1" y="1" width="198" height="90" rx="10" fill="rgba(255,255,255,.16)" stroke="#fff" stroke-width="1.2"/>
+      <g fill="#fff" font-family="Geist Mono, monospace" font-size="8" letter-spacing=".6"><text x="14" y="20">WHERE YOU STAND</text><text x="186" y="20" text-anchor="end">OCT 2026</text></g>
+      <path d="M14 70 C40 66 52 52 74 56 S112 40 132 44 S168 26 186 30" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="186" cy="30" r="3.2" fill="#fff"/><path d="M14 78h172" stroke="#fff" stroke-width="1" opacity=".3"/></svg>`,
+    pulse: `<svg viewBox="0 0 100 34"><path d="M0 22 L18 22 L24 10 L30 30 L36 18 L52 20 L58 14 L64 24 L80 21 L100 20" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg>`,
+    rise: `<svg viewBox="0 0 100 34"><path d="M0 28 C20 27 35 24 50 20 S80 12 100 9" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="100" cy="9" r="2.6" fill="#fff"/></svg>`,
+    bars: (v) => `<svg viewBox="0 0 100 34">${v.map((h, i) => `<rect x="${i * 100 / v.length + 2}" y="${34 - h}" width="${100 / v.length - 5}" height="${h}" rx="2" fill="#fff" opacity="${.45 + .55 * (i / (v.length - 1))}"/>`).join('')}</svg>`,
+    pill: `<svg viewBox="0 0 100 34"><g transform="rotate(-24 70 17)"><rect x="44" y="8" width="52" height="20" rx="10" fill="rgba(255,255,255,.2)" stroke="#fff" stroke-width="1.3"/><path d="M70 8v20" stroke="#fff" stroke-width="1.3"/><rect x="70" y="8.6" width="25.4" height="18.8" rx="9.4" fill="#fff" opacity=".9"/></g></svg>`,
+  }
+
   // ---- Content. Edit the words here; the cards are built from it. ----
   const SETS = {
     how: [
-      { hue: 'blue', k: 'Step', n: '01', h: 'You share your records.', p: 'Letters, lab results, photos of prescriptions, and what you tell us.',
-        more: 'Send a PDF, take a photo, or just say it out loud. Zeit keeps the original, so nothing is lost.',
+      { hue: 'blue', k: 'Step', n: '01', art: 'share', h: 'You share your records.', p: 'Letters, lab results, photos of prescriptions, and what you tell us.',
+        more: 'Send a PDF, take a photo, or say it out loud. Zeit keeps the original, so nothing is lost.',
         rows: [['Letters and reports', 'PDF or photo'], ['Lab results', 'PDF or photo'], ['What you tell us', 'typed or spoken']] },
-      { hue: 'purple', k: 'Step', n: '02', h: 'Zeit sorts them.', p: 'Every value gets its date, its place and its source.',
-        more: 'Each result is placed next to the reference range printed on its own source, so you can always check where it came from.',
+      { hue: 'purple', k: 'Step', n: '02', art: 'sort', h: 'Zeit sorts them.', p: 'Every value gets its date, its place and its source.',
+        more: 'Each result sits next to the range printed on its own letter, so you can always check where it came from.',
         rows: [['Value', 'HbA1c 5.4 %'], ['Date', 'March 2023'], ['Source', 'Lab letter, page 2']] },
-      { hue: 'green', k: 'Step', n: '03', h: 'You get one clear picture.', p: 'In plain words, ready for you and your doctor.',
+      { hue: 'green', k: 'Step', n: '03', art: 'picture', h: 'You get one clear picture.', p: 'In plain words, ready for you and your doctor.',
         more: 'One page shows where you stand. The details sit behind it, one card at a time.',
         rows: [['What matters now', 'your main concern'], ['What the numbers say', 'with their ranges'], ['What to ask next', 'for your next visit']] },
     ],
     uses: [
-      { hue: 'orange', k: 'Use case', n: 'Visit', h: 'Before a visit', p: 'Know what to ask your doctor.',
+      { hue: 'orange', k: 'Before a visit', n: '01', h: 'Before a visit', p: 'Know what to ask your doctor.',
         q: 'What should I ask Dr. Weber on Thursday?', a: 'Ask about your HbA1c. It went from 5.2 to 5.4 % since 2021. Take your medicine list with you.', src: 'Lab letter · Mar 2023' },
-      { hue: 'blue', k: 'Use case', n: 'Results', h: 'Your results', p: 'Hear what a test means, in plain words.',
+      { hue: 'blue', k: 'Your results', n: '02', h: 'Your results', p: 'Hear what a test means, in plain words.',
         q: 'What does my vitamin D result mean?', a: '32 ng/mL is inside the usual 30 to 100 range. It was 18 in 2021.', src: 'Blood test · Feb 2025' },
-      { hue: 'yellow', k: 'Use case', n: 'Medicines', h: 'Your medicines', p: 'Check what you take, and when.',
+      { hue: 'yellow', k: 'Your medicines', n: '03', h: 'Your medicines', p: 'Check what you take, and when.',
         q: 'Am I still taking folic acid?', a: 'No. You took 400 µg with breakfast from 2021 and paused it in June 2022.', src: 'Medication plan · 2022' },
-      { hue: 'purple', k: 'Use case', n: 'Sleep', h: 'Your sleep', p: 'See how you really slept this month.',
+      { hue: 'purple', k: 'Your sleep', n: '04', h: 'Your sleep', p: 'See how you really slept this month.',
         q: 'How did I sleep this month?', a: 'About 6 h 58 min a night. Your best week was 7 h 22.', src: 'Ring sensor · 30 days' },
-      { hue: 'pink', k: 'Use case', n: 'Family', h: 'Your family', p: 'Keep a parent\'s records next to your own.',
-        q: 'When is Mum\'s next eye check?', a: 'In November. Her last one was in November 2025, and the letter advises once a year.', src: 'Clinic letter · Nov 2025' },
+      { hue: 'pink', k: 'Your family', n: '05', h: 'Your family', p: 'Keep a parent\'s records next to your own.',
+        q: 'When is Mum\'s next eye check?', a: 'In November. Her last one was November 2025, and the letter advises once a year.', src: 'Clinic letter · Nov 2025' },
     ],
     app: [
-      { hue: 'blue', k: 'Pulse', n: '2024', big: '61', unit: 'bpm', h: 'Resting pulse', p: 'Steady all year.',
+      { hue: 'blue', k: 'Pulse', n: '2024', big: '61', unit: 'bpm', spark: 'pulse', h: 'Resting pulse', p: 'Steady all year.',
         more: 'Your resting pulse has been steady all year.', rows: [['Average', '61 bpm'], ['Range', '57–66 bpm'], ['Source', 'Phone camera']] },
-      { hue: 'orange', k: 'Lab', n: '2023', big: '5.4', unit: '%', h: 'HbA1c', p: 'Average blood sugar.',
+      { hue: 'orange', k: 'Lab', n: '2023', big: '5.4', unit: '%', spark: 'rise', h: 'HbA1c', p: 'Average blood sugar.',
         more: 'Your average blood sugar over about three months.', rows: [['Result', '5.4 %'], ['Range on the letter', 'below 5.7 %'], ['Last test', 'Mar 2023']] },
-      { hue: 'purple', k: 'Sleep', n: '30 days', big: '6h 58', unit: '', h: 'Sleep', p: 'A night, on average.',
+      { hue: 'purple', k: 'Sleep', n: '30 days', big: '6h58', unit: '', spark: [16, 22, 19, 26, 21, 30, 24], h: 'Sleep', p: 'A night, on average.',
         more: 'A little under seven hours on most nights.', rows: [['Average night', '6 h 58 min'], ['Best week', '7 h 22 min'], ['Source', 'Smart ring']] },
-      { hue: 'yellow', k: 'Rx', n: '2021', big: '400', unit: 'µg', h: 'Folic acid', p: 'Paused in June 2022.',
+      { hue: 'yellow', k: 'Rx', n: '2021', big: '400', unit: 'µg', spark: 'pill', h: 'Folic acid', p: 'Paused in June 2022.',
         more: 'Taken daily with breakfast, paused in June 2022.', rows: [['Dose', '400 µg daily'], ['Started', '2021'], ['Status', 'paused 2022-06']] },
-      { hue: 'green', k: 'Lab', n: '2025', big: '32', unit: 'ng/mL', h: 'Vitamin D', p: 'Up from 18 in 2021.',
+      { hue: 'green', k: 'Lab', n: '2025', big: '32', unit: 'ng/mL', spark: [12, 15, 18, 22, 26, 31], h: 'Vitamin D', p: 'Up from 18 in 2021.',
         more: 'Back inside the usual range over four years.', rows: [['Latest', '32 ng/mL'], ['Range on the letter', '30–100 ng/mL'], ['First result', '18 ng/mL · 2021']] },
     ],
   }
 
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
-  const spots = [['8%', '6%'], ['30%', '22%'], ['46%', '2%'], ['14%', '30%'], ['38%', '12%']]
+  const LIGHT = [['18%', '8%', '-20%', '-12%'], ['70%', '14%', '18%', '-16%'], ['30%', '0%', '-12%', '10%'], ['82%', '24%', '14%', '6%'], ['46%', '6%', '-6%', '-18%']]
 
-  function imgHTML(c, i) {
-    const big = c.big ? `<span class="big">${esc(c.big)}${c.unit ? `<small>${esc(c.unit)}</small>` : ''}</span>` : ''
-    const [x, y] = spots[i % spots.length]
-    return `<span class="img" style="--x:${x};--y:${y}"><span class="tag"><span>${esc(c.k)}</span><span>${esc(c.n)}</span></span>${big}</span>`
+  function imgHTML(c, i, inSheet) {
+    const [x, y, lx, ly] = LIGHT[i % LIGHT.length]
+    let inner = ''
+    if (c.q) inner = `<span class="quote">${esc(c.q)}</span>`
+    else if (c.big) {
+      const sp = Array.isArray(c.spark) ? ART.bars(c.spark) : ART[c.spark] || ''
+      inner = `<span class="val">${esc(c.big)}${c.unit ? `<small>${esc(c.unit)}</small>` : ''}</span><span class="spark">${sp}</span>`
+    } else if (c.art) inner = `<span class="art">${ART[c.art]}</span>`
+    return `<span class="img" style="--x:${x};--y:${y};--lx:${lx};--ly:${ly}"><span class="tag mono"><span>${esc(c.k)}</span><span>${esc(c.n)}</span></span>${inner}</span>`
   }
+
+  const arrow = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12L12 4M6 4h6v6"/></svg>'
 
   document.querySelectorAll('.rail').forEach((rail) => {
     const list = SETS[rail.dataset.set]
     rail.innerHTML = list.map((c, i) =>
       `<button class="card ${c.hue}" type="button" data-i="${i}" aria-label="${esc(c.h)}. Open card">` +
         imgHTML(c, i) +
-        `<span class="body"><h3>${esc(c.h)}</h3><p>${esc(c.p)}</p><span class="more">Open</span></span>` +
+        `<span class="body"><h3>${esc(c.h)}</h3><p>${esc(c.p)}</p>` +
+        `<span class="foot mono"><span>${String(i + 1).padStart(2, '0')} / ${String(list.length).padStart(2, '0')}</span><span class="open">Open ${arrow}</span></span></span>` +
       `</button>`).join('')
 
-    // dots follow the swipe
+    const cards = [...rail.children]
     const dots = rail.nextElementSibling
     dots.innerHTML = list.map(() => '<i></i>').join('')
-    const mark = () => {
-      const card = rail.firstElementChild
-      const step = card.offsetWidth + parseFloat(getComputedStyle(rail).columnGap || 14)
-      const n = Math.max(0, Math.min(list.length - 1, Math.round(rail.scrollLeft / step)))
-      dots.querySelectorAll('i').forEach((d, j) => d.classList.toggle('on', j === n))
-    }
-    rail.addEventListener('scroll', () => requestAnimationFrame(mark), { passive: true })
-    mark()
+    const dotEls = [...dots.children]
 
-    // tap a card: if it is off centre, bring it in; if it is centred, open it
+    // like the app: the centred card is full size, the others step back a little
+    const paint = () => {
+      const rr = rail.getBoundingClientRect(), mid = rr.left + rr.width / 2
+      let best = 0, bestD = Infinity
+      cards.forEach((card, j) => {
+        const r = card.getBoundingClientRect()
+        const d = Math.min(1, Math.abs(r.left + r.width / 2 - mid) / r.width)
+        if (d < bestD) { bestD = d; best = j }
+        card.style.setProperty('--s', (1 - d * 0.08).toFixed(3))
+        card.style.setProperty('--o', (1 - d * 0.35).toFixed(3))
+      })
+      dotEls.forEach((el, j) => el.classList.toggle('on', j === best))
+    }
+    let queued = false
+    rail.addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; paint() }) } }, { passive: true })
+    addEventListener('resize', paint)
+    paint()
+
+    // tap a card: off centre, it slides in; centred, it opens
     rail.addEventListener('click', (e) => {
       const btn = e.target.closest('.card')
       if (!btn) return
       const r = btn.getBoundingClientRect(), rr = rail.getBoundingClientRect()
       const off = (r.left + r.width / 2) - (rr.left + rr.width / 2)
-      if (Math.abs(off) > r.width / 3 && e.detail !== 0) { rail.scrollBy({ left: off, behavior: 'smooth' }); return }
+      if (Math.abs(off) > r.width / 3 && e.detail !== 0) { rail.scrollBy({ left: off, behavior: reduce ? 'auto' : 'smooth' }); return }
       open(list[+btn.dataset.i], +btn.dataset.i, btn)
     })
   })
@@ -369,30 +520,41 @@ footer p { margin: 10px auto 0; max-width: 34em; font-size: 13px; color: var(--i
   let back = null
   function open(c, i, from) {
     back = from
-    const qa = c.q ? `<div class="qa"><span class="you">${esc(c.q)}</span><span class="zeit">${esc(c.a)}</span><span class="src">FROM YOUR RECORD · ${esc(c.src)}</span></div>` : ''
+    const qa = c.q ? `<div class="qa"><span class="you">${esc(c.q)}</span><span class="zeit">${esc(c.a)}</span><span class="src mono">From your record · ${esc(c.src)}</span></div>` : ''
     const rows = c.rows ? `<ul class="rows">${c.rows.map(([a, b]) => `<li><span>${esc(a)}</span><span>${esc(b)}</span></li>`).join('')}</ul>` : ''
     sheet.className = `sheet ${c.hue}`
-    sheet.innerHTML = imgHTML(c, i).replace('class="img"', 'class="img" style="display:block"') +
-      `<button class="x" type="button" aria-label="Close card"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>` +
+    sheet.innerHTML = `<span class="grab" aria-hidden="true"></span>` + imgHTML(c, i).replace('class="img"', 'class="img" style="display:block"') +
+      `<button class="x" type="button" aria-label="Close card"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>` +
       `<div class="body"><h3 id="sheet-h">${esc(c.h)}</h3><p>${esc(c.more || c.p)}</p>${qa}${rows}<p class="note">Example with fictional values. Not medical advice.</p></div>`
     sheet.hidden = scrim.hidden = false
+    document.body.style.overflow = 'hidden'
     requestAnimationFrame(() => requestAnimationFrame(() => { sheet.classList.add('on'); scrim.classList.add('on') }))
     sheet.querySelector('.x').focus({ preventScroll: true })
   }
   function close() {
     if (sheet.hidden) return
     sheet.classList.remove('on'); scrim.classList.remove('on')
-    setTimeout(() => { sheet.hidden = scrim.hidden = true }, 400)
+    document.body.style.overflow = ''
+    setTimeout(() => { sheet.hidden = scrim.hidden = true }, reduce ? 0 : 450)
     if (back) back.focus({ preventScroll: true })
   }
   sheet.addEventListener('click', (e) => { if (e.target.closest('.x')) close() })
   scrim.addEventListener('click', close)
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close() })
 
-  // top bar gets a background once the hero is behind you
-  const top = document.getElementById('top')
-  const solid = () => top.classList.toggle('solid', scrollY > innerHeight * 0.6)
-  addEventListener('scroll', solid, { passive: true }); solid()
+  // ---- scroll: the hero eases back as the page covers it; the top bar follows the section under it ----
+  const top = document.getElementById('top'), heroIn = document.getElementById('hero-in'), night = document.getElementById('uses')
+  const onScroll = () => {
+    const h = innerHeight, p = Math.min(1, scrollY / h)
+    if (!reduce) {
+      heroIn.style.transform = `translateY(${(-p * h * 0.12).toFixed(1)}px) scale(${(1 - p * 0.06).toFixed(3)})`
+      heroIn.style.opacity = (1 - p * 0.9).toFixed(3)
+    }
+    top.classList.toggle('solid', scrollY > h * 0.85)
+    const nr = night.getBoundingClientRect()
+    top.classList.toggle('dark', nr.top < 40 && nr.bottom > 40)
+  }
+  addEventListener('scroll', onScroll, { passive: true }); onScroll()
 })()
 </script>
 </body>
