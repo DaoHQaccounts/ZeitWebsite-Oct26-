@@ -850,7 +850,7 @@
       if (OPTIN_ENDPOINT) {
         const res = await fetch(OPTIN_ENDPOINT, {
           method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ email, source: 'website-v11' }),
+          body: JSON.stringify({ email, source: 'website-v1-imagery-led' }),
         })
         if (!res.ok) throw new Error('status ' + res.status)
       }

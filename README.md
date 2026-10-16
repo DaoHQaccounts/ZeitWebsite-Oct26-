@@ -1,8 +1,8 @@
-# Zeit Health — website v11
+# Zeit Health — website v1 [imagery led]
 
 Mobile-first marketing site. Plain HTML, CSS and JS: no framework, no build step.
 
-v11 is v10 plus people. Feedback on v10: it looked like any AI company in 2025–26. v11 adds
+v1 [imagery led] starts a new line of versions, built from v10 plus people. Feedback on v10: it looked like any AI company in 2025–26. It adds
 studio photographs made with Higgsfield, all in one look: a pale studio, cream bouclé sofas,
 cream knitwear, families of every age, a film camera at the edge of some frames.
 
@@ -18,7 +18,7 @@ cream knitwear, families of every age, a film camera at the edge of some frames.
 
 ## Share it
 
-`share/zeit-health-v11.html` is the whole site in one file. Send it; it opens in any browser.
+`share/zeit-health-v1-imagery-led.html` is the whole site in one file. Send it; it opens in any browser.
 
 ## Run it
 

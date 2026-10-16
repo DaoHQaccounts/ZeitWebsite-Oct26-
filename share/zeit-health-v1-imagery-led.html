@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" />
   <style>
-/* Zeit Health — website v11 (built on v10). v11 adds people: studio photographs made with
+/* Zeit Health — website v1 [imagery led], built on v10. It adds people: studio photographs made with
    Higgsfield, in one look (pale studio, cream boucle, cream knitwear), so the page shows who
    the record is for. The photos sit on the same off-white as the page, so they melt into it.
 
@@ -1601,7 +1601,7 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
       if (OPTIN_ENDPOINT) {
         const res = await fetch(OPTIN_ENDPOINT, {
           method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ email, source: 'website-v11' }),
+          body: JSON.stringify({ email, source: 'website-v1-imagery-led' }),
         })
         if (!res.ok) throw new Error('status ' + res.status)
       }
