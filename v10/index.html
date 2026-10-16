@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zeit Health</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Zeit Health: the secure health superapp. Your family's health records in one place, in plain words.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Zeit Health, website v10. Built from the call transcript: very simple, mobile first,
+   the app's card system, swipe and open. One file: HTML, CSS and a little JS.
+   Layout: one centred column; each section is a heading plus one swipe rail of cards. */
+:root {
+  --ground: #f3f5f8;
+  --surface: #ffffff;
+  --ink: #0e1116;
+  --ink-2: #5b616b;
+  --ink-3: #9aa0a9;
+  --hairline: rgba(14, 17, 22, 0.1);
+
+  --font: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  --mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --cw: min(76vw, 300px);              /* card width */
+  --ease: cubic-bezier(.16, .84, .24, 1);
+  --e1: 0 1px 2px rgba(12,14,18,.05), 0 10px 24px rgba(12,14,18,.06);
+  --e2: 0 1px 2px rgba(12,14,18,.06), 0 18px 40px rgba(12,14,18,.12);
+  color-scheme: light;
+}
+
+/* the card hues, from the app: --g is the image gradient, --c the headline colour */
+.blue   { --g: linear-gradient(140deg, #2f48d4, #5876ea 55%, #a8c1fa); --c: #2f48d4; }
+.orange { --g: linear-gradient(160deg, #ee9a4c, #f4835f 55%, #f8b98c); --c: #c9581f; }
+.purple { --g: linear-gradient(165deg, #9d6fe6, #c59ff0 50%, #f2c9f1); --c: #6c3fc9; }
+.yellow { --g: linear-gradient(170deg, #f2b33f, #f9d86a 50%, #fbeca3); --c: #a0700a; }
+.green  { --g: linear-gradient(160deg, #3e9e78, #7ccba3 50%, #c4ead2); --c: #237a59; }
+.pink   { --g: linear-gradient(160deg, #d9497a, #ee8cad 55%, #f8c8d8); --c: #b8335f; }
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+html, body { margin: 0; overflow-x: clip; }
+body {
+  font-family: var(--font); font-size: 17px; line-height: 1.5;
+  color: var(--ink); background: var(--ground);
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; padding: 0; text-align: left; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 6px; }
+.gutter { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+
+/* ---- top bar: the wordmark only ---- */
+.top {
+  position: fixed; inset: 0 0 auto 0; z-index: 20;
+  display: flex; justify-content: space-between; align-items: center;
+  padding-block: calc(16px + env(safe-area-inset-top, 0px)) 16px;
+  transition: background .3s ease;
+}
+.top.solid { background: rgba(243,245,248,.82); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+.mark { font-weight: 600; font-size: 15px; letter-spacing: .32em; text-decoration: none; color: var(--ink); }
+.top a.go { font-size: 13px; color: var(--ink-2); text-decoration: none; }
+
+/* ---- 1 · hero: short words on an empty screen; it stays put, nothing else up here ---- */
+.hero {
+  position: relative; min-height: 92vh; min-height: 92svh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; overflow: hidden;
+}
+.hero::before {      /* a soft brand wash, the only colour up here */
+  content: ""; position: absolute; width: 140vw; max-width: 900px; aspect-ratio: 1;
+  left: 50%; top: 62%; transform: translate(-50%, -50%);
+  background:
+    radial-gradient(closest-side at 38% 42%, rgba(88,118,234,.55), transparent 70%),
+    radial-gradient(closest-side at 64% 52%, rgba(221,162,238,.45), transparent 70%),
+    radial-gradient(closest-side at 50% 70%, rgba(124,203,163,.35), transparent 70%);
+  filter: blur(40px); opacity: .7; pointer-events: none;
+  animation: breathe 14s ease-in-out infinite alternate;
+}
+@keyframes breathe { to { transform: translate(-50%, -52%) scale(1.06) rotate(8deg); } }
+.hero h1 {
+  position: relative; margin: 0; font-weight: 600;
+  font-size: clamp(44px, 13vw, 104px); line-height: .98; letter-spacing: -.05em; text-wrap: balance;
+}
+.hero p { position: relative; margin: 22px 0 0; max-width: 22em; color: var(--ink-2); font-size: 17px; }
+.hero .cue { position: absolute; bottom: max(28px, env(safe-area-inset-bottom, 0px)); margin: 0; font-size: 13px; color: var(--ink-3); }
+
+/* ---- sections: centred heading, then a rail ---- */
+section.part { padding-block: 96px 24px; }
+.head { text-align: center; max-width: 34rem; margin: 0 auto; }
+.eyebrow { margin: 0 0 12px; font-family: var(--mono); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
+.head h2 { margin: 0; font-size: clamp(32px, 8.4vw, 56px); font-weight: 600; line-height: 1.02; letter-spacing: -.04em; text-wrap: balance; }
+.head .soft { color: var(--ink-3); }
+
+/* ---- the rail: native swipe with snap ---- */
+.rail {
+  display: flex; gap: 14px; margin-top: 40px;
+  overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+  padding-block: 8px 24px; scrollbar-width: none;
+  padding-inline: calc(50% - var(--cw) / 2); scroll-padding-inline: calc(50% - var(--cw) / 2);
+}
+.rail::-webkit-scrollbar { display: none; }
+.dots { display: flex; justify-content: center; gap: 8px; }
+.dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(14,17,22,.16); transition: width .35s var(--ease), background .35s ease; }
+.dots i.on { width: 20px; background: var(--ink); }
+.hint { margin: 14px 0 0; text-align: center; font-size: 13px; color: var(--ink-3); }
+
+/* ---- the card: half image on top, the information below, a coloured headline ---- */
+.card {
+  flex: none; width: var(--cw); scroll-snap-align: center;
+  display: flex; flex-direction: column; aspect-ratio: 3 / 4.1;
+  border-radius: 24px; overflow: hidden; background: var(--surface);
+  box-shadow: var(--e1); transition: transform .4s var(--ease), box-shadow .4s var(--ease);
+}
+.card:hover { box-shadow: var(--e2); }
+.card:active { transform: scale(.97); }
+.img {
+  position: relative; flex: 0 0 50%; background: var(--g); overflow: hidden; color: #fff;
+}
+.img::before, .img::after { content: ""; position: absolute; border-radius: 50%; filter: blur(22px); }
+.img::before { width: 70%; aspect-ratio: 1; left: var(--x, 10%); top: var(--y, 15%); background: rgba(255,255,255,.45); }
+.img::after  { width: 50%; aspect-ratio: 1; right: -10%; bottom: -25%; background: rgba(255,255,255,.3); }
+.img .tag {
+  position: absolute; z-index: 1; left: 16px; top: 14px; right: 16px;
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+}
+.img .big {
+  position: absolute; z-index: 1; left: 16px; bottom: 12px;
+  font-size: 44px; font-weight: 500; letter-spacing: -.04em; line-height: 1;
+}
+.img .big small { font-size: 15px; letter-spacing: 0; margin-left: 4px; opacity: .9; }
+.body { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 16px 18px 18px; min-height: 0; }
+.body h3 { margin: 0; color: var(--c); font-size: 22px; font-weight: 600; line-height: 1.1; letter-spacing: -.025em; text-wrap: balance; }
+.body p { margin: 0; color: var(--ink-2); font-size: 14.5px; line-height: 1.45; }
+.body .more { margin-top: auto; font-size: 13px; color: var(--ink-3); }
+
+/* ---- 4 · the app: the same cards, in a phone ---- */
+.phone {
+  margin: 44px auto 0; width: min(84vw, 330px); aspect-ratio: 390 / 820;
+  border-radius: 48px; padding: 10px; background: #0d0f13; box-shadow: var(--e2);
+}
+.screen {
+  position: relative; height: 100%; border-radius: 39px; overflow: hidden;
+  background: linear-gradient(180deg, #e8edfb, #f3f5f8 45%);
+  display: flex; flex-direction: column;
+}
+.status { display: flex; justify-content: space-between; align-items: center; padding: 14px 26px 0; font-size: 13px; font-weight: 600; }
+.island { width: 84px; height: 24px; border-radius: 14px; background: #0d0f13; }
+.status .bat { width: 22px; height: 11px; border-radius: 3px; border: 1.5px solid var(--ink); }
+.greet { padding: 26px 22px 0; }
+.greet h3 { margin: 0; font-size: 27px; font-weight: 700; line-height: 1.1; letter-spacing: -.04em; }
+.greet p { margin: 6px 0 0; color: var(--ink-2); font-size: 14px; }
+.phone .rail { --cw: min(56vw, 206px); margin-top: auto; gap: 10px; padding-block: 6px 14px; }
+.phone .card { border-radius: 20px; }
+.phone .img .big { font-size: 34px; }
+.phone .body { padding: 12px 14px 14px; gap: 5px; }
+.phone .body h3 { font-size: 17px; }
+.phone .body p { font-size: 12px; }
+.phone .dots { margin-bottom: 14px; }
+.nav { display: flex; justify-content: space-around; padding: 12px 10px calc(14px); background: rgba(255,255,255,.8); border-top: 1px solid var(--hairline); font-size: 10.5px; color: var(--ink-3); }
+.nav span { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.nav span.on { color: var(--ink); }
+.nav svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; }
+
+/* ---- footer ---- */
+footer { padding-block: 96px 40px; text-align: center; }
+footer .mark { display: inline-block; font-size: 13px; }
+footer p { margin: 10px auto 0; max-width: 34em; font-size: 13px; color: var(--ink-3); }
+
+/* ---- the opened card: rises from the bottom in the card's colour ---- */
+.scrim { position: fixed; inset: 0; z-index: 40; background: rgba(10,12,16,.4); opacity: 0; transition: opacity .3s ease; }
+.scrim.on { opacity: 1; }
+.sheet {
+  position: fixed; z-index: 41; left: 50%; bottom: 0; width: min(100%, 520px);
+  max-height: 88vh; max-height: 88svh; overflow-y: auto;
+  border-radius: 28px 28px 0 0; background: var(--surface);
+  transform: translate(-50%, 104%); transition: transform .5s var(--ease);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.sheet.on { transform: translate(-50%, 0); }
+.sheet .img { height: 190px; flex: none; }
+.sheet .img .big { font-size: 56px; }
+.sheet .x {
+  position: absolute; z-index: 2; right: 14px; top: 12px; width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center; background: rgba(255,255,255,.28); color: #fff;
+}
+.sheet .x:focus-visible { outline-color: #fff; }
+.sheet .img .tag { right: 60px; }
+.sheet .body { padding: 22px 24px 30px; gap: 12px; }
+.sheet .body h3 { font-size: 28px; }
+.sheet .body p { font-size: 16px; }
+.qa { margin-top: 6px; display: flex; flex-direction: column; gap: 10px; }
+.qa .you { align-self: flex-end; max-width: 85%; padding: 10px 14px; border-radius: 18px 18px 4px 18px; background: var(--ink); color: #fff; font-size: 15px; }
+.qa .zeit { align-self: flex-start; max-width: 90%; padding: 10px 14px; border-radius: 18px 18px 18px 4px; background: var(--ground); font-size: 15px; }
+.qa .src { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--ink-3); }
+.rows { margin: 6px 0 0; padding: 0; list-style: none; }
+.rows li { display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-top: 1px solid var(--hairline); font-size: 15px; font-variant-numeric: tabular-nums; }
+.rows li span:first-child { color: var(--ink-2); }
+.note { font-size: 12.5px; color: var(--ink-3); }
+
+@media (min-width: 900px) {
+  :root { --cw: 300px; }
+  section.part { padding-block: 140px 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .hero::before { animation: none; }
+  .card, .sheet, .scrim { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="top gutter" id="top">
+  <a class="mark" href="#hero" aria-label="Zeit Health, back to top">ZEIT</a>
+  <a class="go" href="#app">See the app</a>
+</header>
+
+<main>
+  <!-- 1 · HERO: short words over the screen. A real section, so it is there again on the way up. -->
+  <section class="hero gutter" id="hero">
+    <h1>The secure health superapp.</h1>
+    <p>Your family's health records in one place, in plain words.</p>
+    <p class="cue">Scroll</p>
+  </section>
+
+  <!-- 2 · HOW IT WORKS (transcript: "real system / rail system"; confirm with Minh) -->
+  <section class="part" id="how" aria-labelledby="how-h">
+    <div class="head gutter">
+      <p class="eyebrow">How it works</p>
+      <h2 id="how-h">Your records become<br><span class="soft">one clear picture.</span></h2>
+    </div>
+    <div class="rail" data-set="how" aria-label="How it works, three steps"></div>
+    <div class="dots" aria-hidden="true"></div>
+    <p class="hint">Swipe · Tap a card to open it</p>
+  </section>
+
+  <!-- 3 · USE CASES -->
+  <section class="part" id="uses" aria-labelledby="uses-h">
+    <div class="head gutter">
+      <p class="eyebrow">Use cases</p>
+      <h2 id="uses-h">Ask your record.<br><span class="soft">Get a plain answer.</span></h2>
+    </div>
+    <div class="rail" data-set="uses" aria-label="Use cases"></div>
+    <div class="dots" aria-hidden="true"></div>
+  </section>
+
+  <!-- 4 · THE APP: the same card system, swipe and open, inside a phone -->
+  <section class="part" id="app" aria-labelledby="app-h">
+    <div class="head gutter">
+      <p class="eyebrow">The app</p>
+      <h2 id="app-h">Swipe through.<br><span class="soft">Open a card.</span></h2>
+    </div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status" aria-hidden="true"><span>9:41</span><span class="island"></span><span class="bat"></span></div>
+        <div class="greet">
+          <h3>Hi Katrin,<br>here is your record.</h3>
+          <p>One minute for you.</p>
+        </div>
+        <div class="rail" data-set="app" aria-label="Katrin's cards in the app"></div>
+        <div class="dots" aria-hidden="true"></div>
+        <nav class="nav" aria-hidden="true">
+          <span class="on"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/></svg>Home</span>
+          <span><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3.2"/></svg>Vault</span>
+          <span><svg viewBox="0 0 24 24"><path d="M5 5h14v10H9l-4 4z"/></svg>Chat</span>
+          <span><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>Profile</span>
+        </nav>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="gutter">
+  <span class="mark">ZEIT</span>
+  <p>Examples use Katrin Albers, 52. She is fictional, and so are her values.</p>
+  <p>Friendly support from Zeit Health, not medical advice. Discuss results with your doctor. Urgent symptoms: call 112.</p>
+  <p>© 2026 Zeit Health</p>
+</footer>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-h" hidden></div>
+
+<script>
+(() => {
+  // ---- Content. Edit the words here; the cards are built from it. ----
+  const SETS = {
+    how: [
+      { hue: 'blue', k: 'Step', n: '01', h: 'You share your records.', p: 'Letters, lab results, photos of prescriptions, and what you tell us.',
+        more: 'Send a PDF, take a photo, or just say it out loud. Zeit keeps the original, so nothing is lost.',
+        rows: [['Letters and reports', 'PDF or photo'], ['Lab results', 'PDF or photo'], ['What you tell us', 'typed or spoken']] },
+      { hue: 'purple', k: 'Step', n: '02', h: 'Zeit sorts them.', p: 'Every value gets its date, its place and its source.',
+        more: 'Each result is placed next to the reference range printed on its own source, so you can always check where it came from.',
+        rows: [['Value', 'HbA1c 5.4 %'], ['Date', 'March 2023'], ['Source', 'Lab letter, page 2']] },
+      { hue: 'green', k: 'Step', n: '03', h: 'You get one clear picture.', p: 'In plain words, ready for you and your doctor.',
+        more: 'One page shows where you stand. The details sit behind it, one card at a time.',
+        rows: [['What matters now', 'your main concern'], ['What the numbers say', 'with their ranges'], ['What to ask next', 'for your next visit']] },
+    ],
+    uses: [
+      { hue: 'orange', k: 'Use case', n: 'Visit', h: 'Before a visit', p: 'Know what to ask your doctor.',
+        q: 'What should I ask Dr. Weber on Thursday?', a: 'Ask about your HbA1c. It went from 5.2 to 5.4 % since 2021. Take your medicine list with you.', src: 'Lab letter · Mar 2023' },
+      { hue: 'blue', k: 'Use case', n: 'Results', h: 'Your results', p: 'Hear what a test means, in plain words.',
+        q: 'What does my vitamin D result mean?', a: '32 ng/mL is inside the usual 30 to 100 range. It was 18 in 2021.', src: 'Blood test · Feb 2025' },
+      { hue: 'yellow', k: 'Use case', n: 'Medicines', h: 'Your medicines', p: 'Check what you take, and when.',
+        q: 'Am I still taking folic acid?', a: 'No. You took 400 µg with breakfast from 2021 and paused it in June 2022.', src: 'Medication plan · 2022' },
+      { hue: 'purple', k: 'Use case', n: 'Sleep', h: 'Your sleep', p: 'See how you really slept this month.',
+        q: 'How did I sleep this month?', a: 'About 6 h 58 min a night. Your best week was 7 h 22.', src: 'Ring sensor · 30 days' },
+      { hue: 'pink', k: 'Use case', n: 'Family', h: 'Your family', p: 'Keep a parent\'s records next to your own.',
+        q: 'When is Mum\'s next eye check?', a: 'In November. Her last one was in November 2025, and the letter advises once a year.', src: 'Clinic letter · Nov 2025' },
+    ],
+    app: [
+      { hue: 'blue', k: 'Pulse', n: '2024', big: '61', unit: 'bpm', h: 'Resting pulse', p: 'Steady all year.',
+        more: 'Your resting pulse has been steady all year.', rows: [['Average', '61 bpm'], ['Range', '57–66 bpm'], ['Source', 'Phone camera']] },
+      { hue: 'orange', k: 'Lab', n: '2023', big: '5.4', unit: '%', h: 'HbA1c', p: 'Average blood sugar.',
+        more: 'Your average blood sugar over about three months.', rows: [['Result', '5.4 %'], ['Range on the letter', 'below 5.7 %'], ['Last test', 'Mar 2023']] },
+      { hue: 'purple', k: 'Sleep', n: '30 days', big: '6h 58', unit: '', h: 'Sleep', p: 'A night, on average.',
+        more: 'A little under seven hours on most nights.', rows: [['Average night', '6 h 58 min'], ['Best week', '7 h 22 min'], ['Source', 'Smart ring']] },
+      { hue: 'yellow', k: 'Rx', n: '2021', big: '400', unit: 'µg', h: 'Folic acid', p: 'Paused in June 2022.',
+        more: 'Taken daily with breakfast, paused in June 2022.', rows: [['Dose', '400 µg daily'], ['Started', '2021'], ['Status', 'paused 2022-06']] },
+      { hue: 'green', k: 'Lab', n: '2025', big: '32', unit: 'ng/mL', h: 'Vitamin D', p: 'Up from 18 in 2021.',
+        more: 'Back inside the usual range over four years.', rows: [['Latest', '32 ng/mL'], ['Range on the letter', '30–100 ng/mL'], ['First result', '18 ng/mL · 2021']] },
+    ],
+  }
+
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
+  const spots = [['8%', '6%'], ['30%', '22%'], ['46%', '2%'], ['14%', '30%'], ['38%', '12%']]
+
+  function imgHTML(c, i) {
+    const big = c.big ? `<span class="big">${esc(c.big)}${c.unit ? `<small>${esc(c.unit)}</small>` : ''}</span>` : ''
+    const [x, y] = spots[i % spots.length]
+    return `<span class="img" style="--x:${x};--y:${y}"><span class="tag"><span>${esc(c.k)}</span><span>${esc(c.n)}</span></span>${big}</span>`
+  }
+
+  document.querySelectorAll('.rail').forEach((rail) => {
+    const list = SETS[rail.dataset.set]
+    rail.innerHTML = list.map((c, i) =>
+      `<button class="card ${c.hue}" type="button" data-i="${i}" aria-label="${esc(c.h)}. Open card">` +
+        imgHTML(c, i) +
+        `<span class="body"><h3>${esc(c.h)}</h3><p>${esc(c.p)}</p><span class="more">Open</span></span>` +
+      `</button>`).join('')
+
+    // dots follow the swipe
+    const dots = rail.nextElementSibling
+    dots.innerHTML = list.map(() => '<i></i>').join('')
+    const mark = () => {
+      const card = rail.firstElementChild
+      const step = card.offsetWidth + parseFloat(getComputedStyle(rail).columnGap || 14)
+      const n = Math.max(0, Math.min(list.length - 1, Math.round(rail.scrollLeft / step)))
+      dots.querySelectorAll('i').forEach((d, j) => d.classList.toggle('on', j === n))
+    }
+    rail.addEventListener('scroll', () => requestAnimationFrame(mark), { passive: true })
+    mark()
+
+    // tap a card: if it is off centre, bring it in; if it is centred, open it
+    rail.addEventListener('click', (e) => {
+      const btn = e.target.closest('.card')
+      if (!btn) return
+      const r = btn.getBoundingClientRect(), rr = rail.getBoundingClientRect()
+      const off = (r.left + r.width / 2) - (rr.left + rr.width / 2)
+      if (Math.abs(off) > r.width / 3 && e.detail !== 0) { rail.scrollBy({ left: off, behavior: 'smooth' }); return }
+      open(list[+btn.dataset.i], +btn.dataset.i, btn)
+    })
+  })
+
+  // ---- the opened card ----
+  const sheet = document.getElementById('sheet'), scrim = document.getElementById('scrim')
+  let back = null
+  function open(c, i, from) {
+    back = from
+    const qa = c.q ? `<div class="qa"><span class="you">${esc(c.q)}</span><span class="zeit">${esc(c.a)}</span><span class="src">FROM YOUR RECORD · ${esc(c.src)}</span></div>` : ''
+    const rows = c.rows ? `<ul class="rows">${c.rows.map(([a, b]) => `<li><span>${esc(a)}</span><span>${esc(b)}</span></li>`).join('')}</ul>` : ''
+    sheet.className = `sheet ${c.hue}`
+    sheet.innerHTML = imgHTML(c, i).replace('class="img"', 'class="img" style="display:block"') +
+      `<button class="x" type="button" aria-label="Close card"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>` +
+      `<div class="body"><h3 id="sheet-h">${esc(c.h)}</h3><p>${esc(c.more || c.p)}</p>${qa}${rows}<p class="note">Example with fictional values. Not medical advice.</p></div>`
+    sheet.hidden = scrim.hidden = false
+    requestAnimationFrame(() => requestAnimationFrame(() => { sheet.classList.add('on'); scrim.classList.add('on') }))
+    sheet.querySelector('.x').focus({ preventScroll: true })
+  }
+  function close() {
+    if (sheet.hidden) return
+    sheet.classList.remove('on'); scrim.classList.remove('on')
+    setTimeout(() => { sheet.hidden = scrim.hidden = true }, 400)
+    if (back) back.focus({ preventScroll: true })
+  }
+  sheet.addEventListener('click', (e) => { if (e.target.closest('.x')) close() })
+  scrim.addEventListener('click', close)
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close() })
+
+  // top bar gets a background once the hero is behind you
+  const top = document.getElementById('top')
+  const solid = () => top.classList.toggle('solid', scrollY > innerHeight * 0.6)
+  addEventListener('scroll', solid, { passive: true }); solid()
+})()
+</script>
+</body>
+</html>
