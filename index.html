@@ -64,12 +64,44 @@
         <h2 id="product-h" class="h2">One minute a day.<br /><span class="soft">That is all it asks.</span></h2>
       </div>
       <figure class="phone" id="phone">
-        <div class="phone-screen">
-          <div class="phone-status" aria-hidden="true"><span>9:41</span><span class="island"></span><span class="bars"></span></div>
-          <img src="assets/app-home.webp" width="720" height="1473" loading="lazy" decoding="async"
-               alt="The Zeit Health home screen: a greeting, the Talk to ZEIT orb and a Daily Check-In card." />
+        <div class="phone-screen" id="phone-screen">
+          <!-- a scripted copy of the app's voice tour, laid out at the app's own 390 x 844 size
+               and scaled to fit; it plays on a loop while it is on screen -->
+          <div class="dev" id="dev" aria-hidden="true">
+            <div class="dev-status"><span>9:41</span><span class="island"></span><span class="bars"></span></div>
+            <div class="dev-wash" id="dev-wash"></div>
+            <div class="dev-home">
+              <h3 class="dev-h">Hi Katrin,<br />here is your record.</h3>
+              <p class="dev-sub" id="dev-sub">One minute for you.</p>
+              <div class="dev-orb"><span class="orb-blob b1"></span><span class="orb-blob b2"></span><span class="orb-blob b3"></span></div>
+              <div class="dev-rail" id="dev-rail"><div class="dev-bracket" id="dev-bracket"></div></div>
+              <div class="dev-dots" id="dev-dots"></div>
+            </div>
+            <div class="dev-tourbar" id="dev-tourbar">
+              <span class="tb">Pause</span><span class="tb">Skip</span><span class="tb">Stop tour</span>
+              <span class="tb live" id="dev-live">Listening · <b>Stop</b></span>
+            </div>
+            <nav class="dev-nav">
+              <span class="ni on"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/></svg>Home</span>
+              <span class="ni"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3.2"/></svg>Vault</span>
+              <span class="ni talk"><span class="mini-orb"><span class="orb-blob b1"></span><span class="orb-blob b3"></span></span><b id="dev-timer">Talk to ZEIT</b></span>
+              <span class="ni"><svg viewBox="0 0 24 24"><path d="M5 5h14v10H9l-4 4z"/><path d="M8.5 9h7M8.5 12h5"/></svg>Chat</span>
+              <span class="ni"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>Profile</span>
+            </nav>
+            <div class="dev-scrim" id="dev-scrim"></div>
+            <div class="dev-sheet" id="dev-sheet">
+              <span class="ds-x">&times;</span>
+              <p class="ds-k">START HERE</p>
+              <p class="ds-h">A short tour</p>
+              <p class="ds-p">See what each card on your Home does.</p>
+              <p class="ds-p">The Orb talks you through your Home and swipes the cards for you. It uses your microphone.</p>
+              <span class="ds-btn" id="ds-btn">Start voice walkthrough</span>
+              <span class="ds-link">Show me how ZEIT works</span>
+            </div>
+            <span class="dev-tap" id="dev-tap"></span>
+          </div>
         </div>
-        <figcaption class="sr-only">Zeit Health app, home screen</figcaption>
+        <figcaption class="phone-cap small soft">Talk to ZEIT · the voice tour</figcaption>
       </figure>
     </section>
 
