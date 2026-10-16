@@ -164,7 +164,7 @@ section.part { padding-block: 104px 72px; }
 }
 .card:hover { box-shadow: var(--e2); }
 .card:active { transform: scale(calc(var(--s) * .97)); }
-.img {
+.img { display: block;
   position: relative; aspect-ratio: 1 / 1.02; overflow: hidden; color: #fff; isolation: isolate;
   background:
     radial-gradient(120% 90% at var(--x, 20%) var(--y, 10%), var(--l) 0%, transparent 55%),
@@ -180,9 +180,22 @@ section.part { padding-block: 104px 72px; }
 @keyframes light { to { transform: translate(calc(var(--lx, -20%) * -1), calc(var(--ly, -10%) * -1 + 10%)); } }
 .img::after { content: ""; position: absolute; inset: 0; background: var(--grain-light); opacity: .16; mix-blend-mode: overlay; pointer-events: none; }
 .img .tag {
-  position: absolute; left: 18px; right: 18px; top: 16px;
+  position: absolute; z-index: 2; left: 18px; right: 18px; top: 16px;
   display: flex; justify-content: space-between; opacity: .92;
 }
+/* a photo sits over the gradient; if it cannot load, the gradient card still stands */
+.img .photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.img.has-photo .tag { z-index: 1; color: var(--ink); opacity: 1; }
+.img.has-photo .tag span { padding: 5px 8px; border-radius: 6px; background: rgba(255,255,255,.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.img.has-photo::after { opacity: .08; }
+.card .img .photo { transition: transform 1.2s var(--ease); }
+.card:hover .img .photo { transform: scale(1.04); }
+.body .ask { color: var(--ink); font-size: 15.5px; line-height: 1.35; letter-spacing: -.01em; }
+.hero-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; }
+.hero.has-photo .glow { opacity: .35; }
+.hero.has-photo { place-items: start center; }
+.hero.has-photo .hero-in { margin-top: clamp(96px, 17vh, 180px); }
+.hero.has-photo::after { opacity: .1; }
 .img .art { position: absolute; left: 18px; right: 18px; bottom: 18px; }
 .img .art svg { display: block; width: 100%; height: auto; overflow: visible; }
 .img .quote {
@@ -316,6 +329,7 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
 <!-- 1 · HERO: short words over the screen, nothing else. Pinned, so it is there again on the way up. -->
 <section class="hero gutter" id="hero" aria-label="Zeit Health">
   <div class="glow" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <img class="hero-photo" id="hero-photo" alt="" aria-hidden="true" fetchpriority="high">
   <div class="hero-in" id="hero-in">
     <p class="kicker mono">Zeit Health</p>
     <h1><span>The secure</span> <span>health</span> <span>superapp.</span></h1>
@@ -417,6 +431,21 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
     pill: `<svg viewBox="0 0 100 34"><g transform="rotate(-24 70 17)"><rect x="44" y="8" width="52" height="20" rx="10" fill="rgba(255,255,255,.2)" stroke="#fff" stroke-width="1.3"/><path d="M70 8v20" stroke="#fff" stroke-width="1.3"/><rect x="70" y="8.6" width="25.4" height="18.8" rx="9.4" fill="#fff" opacity=".9"/></g></svg>`,
   }
 
+  // ---- Photos (Higgsfield, 16 Oct 2026). Before launch, download them into img/ and point PHOTO_BASE there. ----
+  const PHOTO_BASE = 'https://d8j0ntlcm91z4.cloudfront.net/user_3E20bokjy0pzJry4ZiHM9CTLOQt/'
+  const PHOTOS = {
+    hero: 'hf_20261016_180835_097265e9-fc49-4d72-82cb-431742889cd5.png',
+    share: 'hf_20261016_180904_9e1e3f14-189e-45cd-a1e0-0b71af9245c2.png',
+    sort: 'hf_20261016_180833_631d9bb8-9ae4-4a24-b260-4c215c646f3b.png',
+    picture: 'hf_20261016_180833_c0c6f33a-b495-40e5-b3b8-f068990ffa58.png',
+    visit: 'hf_20261016_180834_379b515c-ab0c-4700-a17d-d8773156e250.png',
+    results: 'hf_20261016_180835_4c716191-79ba-4c9c-a227-b1efe193dee0.png',
+    meds: 'hf_20261016_180834_ff744a2d-2c4f-4e17-ac89-8611a5875e50.png',
+    sleep: 'hf_20261016_180835_c747f7e2-139c-420d-b84c-af409057dc86.png',
+    family: 'hf_20261016_180834_9c83e121-f06f-4317-a4ed-47f5f85fbec3.png',
+  }
+  const photoURL = (k) => PHOTOS[k] ? PHOTO_BASE + PHOTOS[k] : ''
+
   // ---- Content. Edit the words here; the cards are built from it. ----
   const SETS = {
     how: [
@@ -431,15 +460,15 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
         rows: [['What matters now', 'your main concern'], ['What the numbers say', 'with their ranges'], ['What to ask next', 'for your next visit']] },
     ],
     uses: [
-      { hue: 'orange', k: 'Before a visit', n: '01', h: 'Before a visit', p: 'Know what to ask your doctor.',
+      { hue: 'orange', k: 'Before a visit', n: '01', photo: 'visit', h: 'Before a visit', p: 'Know what to ask your doctor.',
         q: 'What should I ask Dr. Weber on Thursday?', a: 'Ask about your HbA1c. It went from 5.2 to 5.4 % since 2021. Take your medicine list with you.', src: 'Lab letter · Mar 2023' },
-      { hue: 'blue', k: 'Your results', n: '02', h: 'Your results', p: 'Hear what a test means, in plain words.',
+      { hue: 'blue', k: 'Your results', n: '02', photo: 'results', h: 'Your results', p: 'Hear what a test means, in plain words.',
         q: 'What does my vitamin D result mean?', a: '32 ng/mL is inside the usual 30 to 100 range. It was 18 in 2021.', src: 'Blood test · Feb 2025' },
-      { hue: 'yellow', k: 'Your medicines', n: '03', h: 'Your medicines', p: 'Check what you take, and when.',
+      { hue: 'yellow', k: 'Your medicines', n: '03', photo: 'meds', h: 'Your medicines', p: 'Check what you take, and when.',
         q: 'Am I still taking folic acid?', a: 'No. You took 400 µg with breakfast from 2021 and paused it in June 2022.', src: 'Medication plan · 2022' },
-      { hue: 'purple', k: 'Your sleep', n: '04', h: 'Your sleep', p: 'See how you really slept this month.',
+      { hue: 'purple', k: 'Your sleep', n: '04', photo: 'sleep', h: 'Your sleep', p: 'See how you really slept this month.',
         q: 'How did I sleep this month?', a: 'About 6 h 58 min a night. Your best week was 7 h 22.', src: 'Ring sensor · 30 days' },
-      { hue: 'pink', k: 'Your family', n: '05', h: 'Your family', p: 'Keep a parent\'s records next to your own.',
+      { hue: 'pink', k: 'Your family', n: '05', photo: 'family', h: 'Your family', p: 'Keep a parent\'s records next to your own.',
         q: 'When is Mum\'s next eye check?', a: 'In November. Her last one was November 2025, and the letter advises once a year.', src: 'Clinic letter · Nov 2025' },
     ],
     app: [
@@ -459,15 +488,19 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
   const LIGHT = [['18%', '8%', '-20%', '-12%'], ['70%', '14%', '18%', '-16%'], ['30%', '0%', '-12%', '10%'], ['82%', '24%', '14%', '6%'], ['46%', '6%', '-6%', '-18%']]
 
-  function imgHTML(c, i, inSheet) {
+  // the card's photo key: the step's drawing name, or the use case's own key
+  const photoKey = (c) => c.photo || c.art
+  function imgHTML(c, i) {
     const [x, y, lx, ly] = LIGHT[i % LIGHT.length]
     let inner = ''
-    if (c.q) inner = `<span class="quote">${esc(c.q)}</span>`
-    else if (c.big) {
+    if (c.big) {
       const sp = Array.isArray(c.spark) ? ART.bars(c.spark) : ART[c.spark] || ''
       inner = `<span class="val">${esc(c.big)}${c.unit ? `<small>${esc(c.unit)}</small>` : ''}</span><span class="spark">${sp}</span>`
     } else if (c.art) inner = `<span class="art">${ART[c.art]}</span>`
-    return `<span class="img" style="--x:${x};--y:${y};--lx:${lx};--ly:${ly}"><span class="tag mono"><span>${esc(c.k)}</span><span>${esc(c.n)}</span></span>${inner}</span>`
+    // the photo lies on top of the drawn card; if it cannot load it removes itself and the drawing shows
+    const src = photoURL(photoKey(c))
+    const photo = src ? `<img class="photo" src="${src}" alt="" loading="lazy" decoding="async" onerror="this.parentNode.classList.remove('has-photo');this.remove()">` : ''
+    return `<span class="img${src ? ' has-photo' : ''}" style="--x:${x};--y:${y};--lx:${lx};--ly:${ly}">${inner}${photo}<span class="tag mono"><span>${esc(c.k)}</span><span>${esc(c.n)}</span></span></span>`
   }
 
   const arrow = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12L12 4M6 4h6v6"/></svg>'
@@ -477,7 +510,7 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
     rail.innerHTML = list.map((c, i) =>
       `<button class="card ${c.hue}" type="button" data-i="${i}" aria-label="${esc(c.h)}. Open card">` +
         imgHTML(c, i) +
-        `<span class="body"><h3>${esc(c.h)}</h3><p>${esc(c.p)}</p>` +
+        `<span class="body"><h3>${esc(c.h)}</h3>${c.q ? `<p class="ask">“${esc(c.q)}”</p>` : `<p>${esc(c.p)}</p>`}` +
         `<span class="foot mono"><span>${String(i + 1).padStart(2, '0')} / ${String(list.length).padStart(2, '0')}</span><span class="open">Open ${arrow}</span></span></span>` +
       `</button>`).join('')
 
@@ -523,7 +556,7 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
     const qa = c.q ? `<div class="qa"><span class="you">${esc(c.q)}</span><span class="zeit">${esc(c.a)}</span><span class="src mono">From your record · ${esc(c.src)}</span></div>` : ''
     const rows = c.rows ? `<ul class="rows">${c.rows.map(([a, b]) => `<li><span>${esc(a)}</span><span>${esc(b)}</span></li>`).join('')}</ul>` : ''
     sheet.className = `sheet ${c.hue}`
-    sheet.innerHTML = `<span class="grab" aria-hidden="true"></span>` + imgHTML(c, i).replace('class="img"', 'class="img" style="display:block"') +
+    sheet.innerHTML = `<span class="grab" aria-hidden="true"></span>` + imgHTML(c, i) +
       `<button class="x" type="button" aria-label="Close card"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>` +
       `<div class="body"><h3 id="sheet-h">${esc(c.h)}</h3><p>${esc(c.more || c.p)}</p>${qa}${rows}<p class="note">Example with fictional values. Not medical advice.</p></div>`
     sheet.hidden = scrim.hidden = false
@@ -543,6 +576,9 @@ footer p { margin: 0; max-width: 40em; font-size: 13px; color: var(--ink-3); }
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close() })
 
   // ---- scroll: the hero eases back as the page covers it; the top bar follows the section under it ----
+  const hp = document.getElementById('hero-photo')
+  if (PHOTOS.hero) { hp.onerror = () => { hp.remove(); document.getElementById('hero').classList.remove('has-photo') }; hp.src = photoURL('hero'); document.getElementById('hero').classList.add('has-photo') } else hp.remove()
+
   const top = document.getElementById('top'), heroIn = document.getElementById('hero-in'), night = document.getElementById('uses')
   const onScroll = () => {
     const h = innerHeight, p = Math.min(1, scrollY / h)

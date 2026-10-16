@@ -16,6 +16,13 @@ A fresh start from the call transcript. Separate from `ZeitWebsite-Oct26-` (V1 t
 
 All card text sits in `SETS` near the bottom of `index.html`.
 
+## Photos
+
+Nine studio photos made on Higgsfield in Minh's reference style (cream sofa, grey studio, film gear).
+The page loads them by link from Higgsfield's image host (`PHOTOS` in `index.html`).
+If a photo can't load, its card falls back to the brand gradient.
+Before launch: download them into `img/`, compress them, and point `PHOTO_BASE` there.
+
 ## Waiting on
 
 - Minh's design reference from the group chat
