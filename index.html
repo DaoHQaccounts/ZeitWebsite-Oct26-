@@ -30,9 +30,7 @@
     <!-- 1 · HERO -->
     <section class="hero" id="hero" aria-label="Zeit Health">
       <div class="hero-orb" id="hero-orb" aria-hidden="true">
-        <span class="orb-blob b1"></span>
-        <span class="orb-blob b2"></span>
-        <span class="orb-blob b3"></span>
+        <canvas class="orb-canvas" data-orb="hero" data-res="220"></canvas>
       </div>
       <h1 class="hero-words" id="hero-words">
         <span class="w">simple</span>
@@ -73,21 +71,21 @@
             <div class="dev-home" id="dev-home">
               <h3 class="dev-h">Hi Katrin,<br />here is your record.</h3>
               <p class="dev-sub">One minute for you.</p>
-              <div class="dev-orb" id="dev-orb"><span class="orb-blob b1"></span><span class="orb-blob b2"></span><span class="orb-blob b3"></span></div>
+              <div class="dev-orb" id="dev-orb"><canvas class="orb-canvas" data-orb="home" data-res="160"></canvas></div>
               <div class="dev-rail" id="dev-rail"></div>
               <div class="dev-dots" id="dev-dots"></div>
             </div>
             <nav class="dev-nav" id="dev-nav">
               <span class="ni on"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/></svg>Home</span>
               <span class="ni"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3.2"/></svg>Vault</span>
-              <span class="ni talk"><span class="mini-orb"><span class="orb-blob b1"></span><span class="orb-blob b3"></span></span><b>Talk to ZEIT</b></span>
+              <span class="ni talk"><span class="mini-orb"><canvas class="orb-canvas" data-orb="nav" data-res="96"></canvas></span><b>Talk to ZEIT</b></span>
               <span class="ni"><svg viewBox="0 0 24 24"><path d="M5 5h14v10H9l-4 4z"/><path d="M8.5 9h7M8.5 12h5"/></svg>Chat</span>
               <span class="ni"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>Profile</span>
             </nav>
             <!-- Talk to ZEIT, voice face: the orb, your words, ZEIT's answer -->
             <div class="dev-talk" id="dev-talk">
               <div class="dt-head"><span class="dt-k">QUESTIONS</span><span class="dt-t">Talk to ZEIT</span><span class="dt-x">&times;</span></div>
-              <div class="dt-orb" id="dt-orb"><span class="orb-blob b1"></span><span class="orb-blob b2"></span><span class="orb-blob b3"></span><span class="dt-ring"></span></div>
+              <div class="dt-orb" id="dt-orb"><span class="dt-ring"></span><canvas class="orb-canvas" data-orb="talk" data-res="240"></canvas></div>
               <p class="dt-you" id="dt-you"></p>
               <p class="dt-zeit" id="dt-zeit"></p>
               <p class="dt-src" id="dt-src"></p>

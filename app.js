@@ -69,6 +69,102 @@
   }
   const clamp01 = (v) => Math.max(0, Math.min(1, v))
 
+  // ---- The living orb -------------------------------------------------------------------
+  // One renderer for every orb on the page. The body is a soft blob whose edge is a sum of
+  // slow sine waves, so it never repeats and never sits still. Inside, a deep-blue current
+  // and a white light drift on their own orbits. It breathes at rest; `energy` makes it
+  // move more, `level` swells it like a voice (listening to you, or speaking back), and
+  // `poke()` gives it the small startled squish of being touched.
+  const ORBS = []
+  class LiveOrb {
+    constructor(canvas) {
+      this.c = canvas
+      this.g = canvas.getContext('2d')
+      const res = +canvas.dataset.res || 160
+      this.c.width = this.c.height = res
+      this.r = res / 2
+      this.seed = Math.random() * 100
+      this.energy = new Spring(0.18, SETTLE)
+      this.level = new Spring(0, { k: 260, c: 18, m: 1 })   // bouncy, like a voice meter
+      this.squish = new Spring(1, { k: 520, c: 16, m: 1 })  // a touch wobbles it
+      this.look = { x: new Spring(0, SETTLE), y: new Spring(0, SETTLE) }
+      this.visible = true
+    }
+    set(energy) { this.energy.set(energy) }
+    pulse(v) { this.level.v += v * 9; this.level.set(0) }
+    poke() { this.squish.x = 0.9; this.squish.v = -1.5; this.squish.set(1); this.pulse(0.5) }
+    gaze(x, y) { this.look.x.set(x); this.look.y.set(y) }
+    springs() { return [this.energy, this.level, this.squish, this.look.x, this.look.y] }
+    edge(t, k, amp, spd) {
+      // the outline: radius at each angle, from a few slow waves
+      const pts = [], N = 72, s = this.seed
+      for (let i = 0; i < N; i++) {
+        const a = (i / N) * Math.PI * 2
+        const w = Math.sin(2 * a + t * 0.9 * spd + s) * 0.55 +
+                  Math.sin(3 * a - t * 1.3 * spd + s * 2) * 0.3 +
+                  Math.sin(5 * a + t * 2.1 * spd + s * 3) * 0.15
+        pts.push(a, k * (1 + amp * w))
+      }
+      return pts
+    }
+    blob(cx, cy, pts, fill) {
+      const g = this.g
+      g.beginPath()
+      for (let i = 0; i < pts.length; i += 2) {
+        const x = cx + Math.cos(pts[i]) * pts[i + 1], y = cy + Math.sin(pts[i]) * pts[i + 1]
+        i ? g.lineTo(x, y) : g.moveTo(x, y)
+      }
+      g.closePath(); g.fillStyle = fill; g.fill()
+    }
+    draw(t) {
+      const g = this.g, R = this.r, e = this.energy.x, lv = Math.max(0, this.level.x)
+      g.clearRect(0, 0, R * 2, R * 2)
+      const breathe = 1 + Math.sin(t * 1.25 + this.seed) * 0.022
+      const size = R * 0.8 * breathe * (1 + lv * 0.16) * this.squish.x
+      const amp = 0.035 + e * 0.07 + lv * 0.08
+      const spd = 0.5 + e * 1.6 + lv * 1.2
+      const lx = this.look.x.x * R * 0.06, ly = this.look.y.x * R * 0.06
+      const cx = R + lx + Math.sin(t * 0.37 + this.seed) * R * 0.025
+      const cy = R + ly + Math.cos(t * 0.29 + this.seed) * R * 0.025
+
+      // body: deep blue to periwinkle, lit from the top left
+      let gr = g.createLinearGradient(cx - size, cy - size, cx + size, cy + size)
+      gr.addColorStop(0, '#2a43d2'); gr.addColorStop(0.55, '#5f7fee'); gr.addColorStop(1, '#b9cdfb')
+      this.blob(cx, cy, this.edge(t, size, amp, spd), gr)
+
+      // the current: a deeper blue that circles slowly inside
+      const ca = t * (0.35 + e * 0.6) + this.seed
+      const dx = cx + Math.cos(ca) * size * 0.28, dy = cy + Math.sin(ca) * size * 0.24
+      gr = g.createRadialGradient(dx, dy, 0, dx, dy, size * 0.62)
+      gr.addColorStop(0, 'rgba(24, 38, 150, .85)'); gr.addColorStop(1, 'rgba(24, 38, 150, 0)')
+      this.blob(dx, dy, this.edge(t * 1.3 + 7, size * 0.6, amp * 1.4, spd), gr)
+
+      // the light: a soft white that drifts against the current
+      const la = -t * (0.27 + e * 0.4) + this.seed * 2
+      const hx = cx - size * 0.28 + Math.cos(la) * size * 0.16, hy = cy - size * 0.3 + Math.sin(la) * size * 0.14
+      gr = g.createRadialGradient(hx, hy, 0, hx, hy, size * 0.55)
+      gr.addColorStop(0, 'rgba(255,255,255,.95)'); gr.addColorStop(0.45, 'rgba(232,239,254,.6)'); gr.addColorStop(1, 'rgba(232,239,254,0)')
+      this.blob(hx, hy, this.edge(t * 0.8 + 3, size * 0.5, amp * 1.2, spd), gr)
+    }
+  }
+  document.querySelectorAll('canvas[data-orb]').forEach((cv) => {
+    const o = new LiveOrb(cv)
+    ORBS.push(o); ORBS[cv.dataset.orb] = o
+    if ('IntersectionObserver' in window) new IntersectionObserver((es) => { o.visible = es[0].isIntersecting; loop.wake() }).observe(cv)
+  })
+  const orbT0 = performance.now()
+  loop.add((dt) => {
+    const t = (performance.now() - orbT0) / 1000
+    let any = false
+    for (const o of ORBS) {
+      if (!o.visible) continue
+      stepAll(o.springs(), dt)
+      o.draw(reduce ? 0 : t)
+      any = true
+    }
+    return any && !reduce   // alive: keep drawing while any orb is on screen
+  })
+
   // ---- Charts (small SVGs, drawn in the CI's thin-line style) ----------------------------
   const pulsePath = () => {
     let d = 'M0 30', x = 0
@@ -187,6 +283,22 @@
   const heroWords = document.getElementById('hero-words')
   const heroFoot = document.getElementById('hero-foot')
   requestAnimationFrame(() => heroOrb.classList.add('in'))
+  // the hero orb wakes up, then settles into breathing; it glances toward your cursor and
+  // jolts when you touch the hero
+  const heroLive = ORBS.hero
+  if (heroLive && !reduce) {
+    heroLive.energy.x = 0.9; heroLive.set(0.2)
+    let lastMove = 0
+    window.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return
+      const r = heroOrb.getBoundingClientRect()
+      const nx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2), ny = (e.clientY - (r.top + r.height / 2)) / (r.height / 2)
+      heroLive.gaze(Math.max(-1, Math.min(1, nx)), Math.max(-1, Math.min(1, ny)))
+      const now = performance.now()
+      if (now - lastMove > 600 && Math.abs(e.movementX) + Math.abs(e.movementY) > 40) { heroLive.pulse(0.25); lastMove = now }
+    }, { passive: true })
+    document.getElementById('hero').addEventListener('pointerdown', () => heroLive.poke())
+  }
 
   // ---- The rail (app: CardRail.jsx + motion.js CARD) -------------------------------------
   // `spread` runs 0 -> 1 with the scroll while the section is pinned: at 0 the cards are a
@@ -527,6 +639,7 @@
     await later(160)
     if (id !== run) return
     devRail.classList.add('dragging')
+    ORBS.home.gaze(-0.8, 0.3)
     finger.classList.add('moving')
     finger.style.left = '120px'
     const t0 = performance.now()
@@ -544,6 +657,7 @@
     devRail.classList.remove('dragging')   // let go: the row springs on from where the finger left it
     devF = (devF + 1) % devEls.length
     devLayout(devF)
+    ORBS.home.pulse(0.2); timers.push(setTimeout(() => ORBS.home.gaze(0, 0), 500))
   }
   async function tap(x, y) {
     fingerAt(x, y, true)
@@ -551,10 +665,11 @@
     finger.classList.remove('down')
   }
   // words arrive one at a time, the way speech does
-  async function say(el, text, perWord, id) {
+  async function say(el, text, perWord, id, orb, strength) {
     el.textContent = ''
     for (const w of text.split(' ')) {
       if (id !== run) return
+      if (orb) orb.pulse(strength * (0.6 + Math.min(1, w.length / 7) * 0.6) * (0.8 + Math.random() * 0.4))
       const s = document.createElement('span')
       s.className = 'w-in'; s.textContent = w + ' '
       el.appendChild(s)
@@ -562,21 +677,26 @@
     }
   }
   const state = (t) => { $('dt-state').textContent = t }
-  const mode = (m) => { dev.classList.toggle('listening', m === 'listen'); dev.classList.toggle('speaking', m === 'speak') }
+  const ENERGY = { listen: 0.55, think: 0.85, speak: 0.5, '': 0.2 }
+  const mode = (m) => {
+    dev.classList.toggle('listening', m === 'listen'); dev.classList.toggle('speaking', m === 'speak')
+    ORBS.talk.set(ENERGY[m] ?? 0.2)
+  }
 
   async function exchange(id, question, answer, source) {
     $('dt-you').textContent = ''; $('dt-zeit').textContent = ''; $('dt-src').classList.remove('on')
     await tap(195, 290)                                  // tap the orb
     if (id !== run) return
+    ORBS.talk.poke()
     mode('listen'); state("Listening. Pause when you're done.")
-    await say($('dt-you'), question, 260, id)
+    await say($('dt-you'), question, 260, id, ORBS.talk, 0.45)
     await later(700); if (id !== run) return
     mode(''); state('Got it')
     await later(600); if (id !== run) return
-    state('Checking your papers')
+    state('Checking your papers'); mode('think')
     await later(900); if (id !== run) return
     mode('speak'); state('')
-    await say($('dt-zeit'), answer, 210, id)
+    await say($('dt-zeit'), answer, 210, id, ORBS.talk, 0.6)
     if (id !== run) return
     $('dt-src').textContent = source; $('dt-src').classList.add('on')
     mode(''); state('Tap to talk')
@@ -591,6 +711,7 @@
     await swipe(id); await later(1300); if (id !== run) return
     await swipe(id); await later(1300); if (id !== run) return
     await tap(195, 240); if (id !== run) return             // the orb on Home
+    ORBS.home.poke()
     dev.classList.add('talking')
     await later(1100); if (id !== run) return
     await exchange(id, 'What did my last blood test say?', 'Your HbA1c was 5.4 %. That is in the normal range.', 'Blood panel · Mar 2023')

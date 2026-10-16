@@ -1,4 +1,4 @@
-# Zeit Health — website v6
+# Zeit Health — website v7
 
 Mobile-first marketing site. Plain HTML, CSS and JS: no framework, no build step.
 
@@ -13,7 +13,7 @@ Mobile-first marketing site. Plain HTML, CSS and JS: no framework, no build step
 
 ## Share it
 
-`share/zeit-health-v6.html` is the whole site in one file. Send it; it opens in any browser.
+`share/zeit-health-v7.html` is the whole site in one file. Send it; it opens in any browser.
 
 ## Run it
 
