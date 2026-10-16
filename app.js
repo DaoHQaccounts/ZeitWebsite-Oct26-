@@ -616,7 +616,7 @@
   window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll) } }, { passive: true })
   onScroll()
 
-  const revealEls = document.querySelectorAll('.product-copy, .about .h2, .about .lede, .pillars li, .updates > *')
+  const revealEls = document.querySelectorAll('.people-head > *, .product-copy, .about .h2, .about .lede, .shot, .pillars li, .updates > *')
   if ('IntersectionObserver' in window && !reduce) {
     revealEls.forEach((el) => el.classList.add('reveal'))
     const io2 = new IntersectionObserver((es) => es.forEach((e) => {
@@ -766,10 +766,15 @@
   ]
   const useEls = [...document.querySelectorAll('#uses .use')]
   const phoneCap = document.getElementById('phone-cap')
+  // the photograph behind the phone: one person per use case, crossfading as the scene changes
+  const stagePics = [...document.querySelectorAll('#stage-photos img')]
+  const stageTag = document.getElementById('stage-tag')
   let useIdx = 0, progRaf = 0
   function showUse(i) {
     useEls.forEach((el, j) => { el.classList.toggle('on', j === i); el.setAttribute('aria-pressed', j === i); el.style.setProperty('--p', j < i ? 1 : 0) })
     if (useEls[i]) phoneCap.textContent = useEls[i].querySelector('b').textContent
+    stagePics.forEach((p, j) => p.classList.toggle('on', j === i))
+    if (stagePics[i]) stageTag.textContent = stagePics[i].dataset.tag
     // the active line fills over the length of its scene
     cancelAnimationFrame(progRaf)
     const u = USES[i], words = (t) => t.split(' ').length
@@ -845,7 +850,7 @@
       if (OPTIN_ENDPOINT) {
         const res = await fetch(OPTIN_ENDPOINT, {
           method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ email, source: 'website-v3' }),
+          body: JSON.stringify({ email, source: 'website-v11' }),
         })
         if (!res.ok) throw new Error('status ' + res.status)
       }
