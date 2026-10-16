@@ -148,8 +148,9 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
   box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.08), var(--e2);
 }
 .sc-screen { position: relative; aspect-ratio: 390 / 844; border-radius: 44px; overflow: hidden; background: #0d0e10; container-type: inline-size; color: #fff; }
-/* the photo sits a little low, so the whole head lands inside the oval */
-.sc-face { position: absolute; left: 0; top: 10cqw; width: 100%; height: 100%; object-fit: cover; object-position: center top; opacity: 0; transform: scale(1.06); transition: opacity 1s ease, transform 12s ease-out; }
+/* each face photo has the nose at its exact centre; the photo is placed so that centre lands
+   on the centre of the oval (48cqw + 70cqw = 118cqw down), so the nose is dead centre */
+.sc-face { position: absolute; left: 0; top: calc(118cqw - 50%); width: 100%; height: 100%; object-fit: cover; object-position: center center; opacity: 0; transform: scale(1.06); transition: opacity 1s ease, transform 12s ease-out; }
 .sc-face.on { opacity: 1; transform: none; }
 /* the camera view darkens outside the ring, as in the app */
 .sc-veil { position: absolute; inset: 0; background:
@@ -624,9 +625,9 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
       </div>
       <figure class="scanner" id="scanner" aria-hidden="true">
         <div class="sc-screen">
-          <img class="sc-face on" src="https://d8j0ntlcm91z4.cloudfront.net/user_3E20bokjy0pzJry4ZiHM9CTLOQt/hf_20261016_185441_4d771a7e-c175-4625-8382-f3144a254091_min.webp" alt="" data-bpm="62" decoding="async" />
-          <img class="sc-face" src="https://d8j0ntlcm91z4.cloudfront.net/user_3E20bokjy0pzJry4ZiHM9CTLOQt/hf_20261016_185440_7d6ffab4-d48f-4b78-9671-9dfec9160e7b_min.webp" alt="" data-bpm="68" loading="lazy" decoding="async" />
-          <img class="sc-face" src="https://d8j0ntlcm91z4.cloudfront.net/user_3E20bokjy0pzJry4ZiHM9CTLOQt/hf_20261016_185850_3e8f72bd-304e-4fdf-b918-5d95ee9aecf2_min.webp" alt="" data-bpm="71" loading="lazy" decoding="async" />
+          <img class="sc-face on" src="https://d8j0ntlcm91z4.cloudfront.net/user_3E20bokjy0pzJry4ZiHM9CTLOQt/hf_20261016_190620_1c84b8a8-da3c-41e6-b719-ee29d5f2118a_min.webp" alt="" data-bpm="62" decoding="async" />
+          <img class="sc-face" src="https://d8j0ntlcm91z4.cloudfront.net/user_3E20bokjy0pzJry4ZiHM9CTLOQt/hf_20261016_190619_310dbe44-fe63-48a1-b2ff-031dc01d48b8_min.webp" alt="" data-bpm="68" loading="lazy" decoding="async" />
+          <img class="sc-face" src="https://d8j0ntlcm91z4.cloudfront.net/user_3E20bokjy0pzJry4ZiHM9CTLOQt/hf_20261016_190619_00aeae2b-dd8f-4513-9c35-38079aaac1a7_min.webp" alt="" data-bpm="71" loading="lazy" decoding="async" />
           <span class="sc-veil"></span>
           <div class="sc-bar"><span>ZEIT.SCAN</span><b id="sc-time">01:00</b></div>
           <p class="sc-h" id="sc-h">Looking for your face</p>
