@@ -460,10 +460,10 @@
     revealEls.forEach((el) => io2.observe(el))
   }
 
-  // ---- The phone: a scripted copy of the app's voice tour (from the 16 Oct screen recording) ----
-  // Home -> tap Talk to ZEIT -> "A short tour" sheet -> Start voice walkthrough -> the Orb
-  // swipes the cards and the line under the greeting follows -> the call ends -> Home. Loops
-  // while the phone is on screen.
+  // ---- The phone: you, using the app ------------------------------------------------------
+  // No tour and no guide. Your finger swipes the cards, you tap the orb and ask out loud, the
+  // orb listens, checks your papers and answers from your record. The status lines are the
+  // app's own (zeit-mvp/src/flows/Talk.jsx). Loops while the phone is on screen.
   const dev = document.getElementById('dev')
   const devScreen = document.getElementById('phone-screen')
   const fitDev = () => { dev.style.transform = `scale(${devScreen.clientWidth / 390})` }
@@ -472,18 +472,15 @@
 
   const ICON = {
     pulse: '<path d="M3 12h4l2-5 4 10 2-5h6"/>',
-    spark: '<path d="M12 3l1.8 6.2L20 11l-6.2 1.8L12 19l-1.8-6.2L4 11l6.2-1.8z"/>',
     mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/>',
     chat: '<path d="M5 5h14v10H9l-4 4z"/><path d="M8.5 9h7M8.5 12h5"/>',
-    people: '<circle cx="9" cy="9" r="3"/><path d="M3.5 19c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16 14.6c2.2.2 3.8 1.6 4.5 4.4"/>',
-    capsule: '<rect x="3" y="8.5" width="18" height="7" rx="3.5"/><path d="M12 8.5v7"/>',
     upload: '<path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M5 15v4h14v-4"/>',
+    capsule: '<rect x="3" y="8.5" width="18" height="7" rx="3.5"/><path d="M12 8.5v7"/>',
     vault: '<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3.2"/>',
   }
   const DEV_CARDS = [
-    ['Daily Check-In', 'pulse', 'CHECK-IN'], ['Start Here', 'spark', 'TOUR'], ['Doctor Visit', 'mic', 'VISIT'],
-    ['Chat', 'chat', 'CHAT'], ['Doctor in the Loop', 'people', 'COMING SOON'], ['Supplements', 'capsule', 'COMING SOON'],
-    ['Upload Documents', 'upload', 'HEALTH DOCUMENTS'], ['Vault', 'vault', 'VAULT'],
+    ['Daily Check-In', 'pulse', 'CHECK-IN'], ['Doctor Visit', 'mic', 'VISIT'], ['Upload Documents', 'upload', 'HEALTH DOCUMENTS'],
+    ['Chat', 'chat', 'CHAT'], ['Supplements', 'capsule', 'COMING SOON'], ['Vault', 'vault', 'VAULT'],
   ]
   const devRail = document.getElementById('dev-rail')
   const devDots = document.getElementById('dev-dots')
@@ -499,84 +496,120 @@
     return { el, dot }
   })
   const DSTEP = 243
-  function devFocus(f) {
+  let devF = 0
+  function devLayout(f, dx = 0) {
     const m = devEls.length
     devEls.forEach(({ el, dot }, i) => {
       let d = i - f; d -= m * Math.round(d / m)
       const ad = Math.abs(d)
-      el.style.transform = `translate3d(${d * DSTEP}px, ${d ? 6 : 0}px, 0) scale(${d ? 0.86 : 1})`
+      el.style.transform = `translate3d(${d * DSTEP + dx}px, ${d ? 6 : 0}px, 0) scale(${d ? 0.86 : 1})`
       el.style.opacity = ad > 1 ? 0 : 1
       el.style.zIndex = 10 - ad
       el.classList.toggle('off', d !== 0)
       dot.classList.toggle('on', d === 0)
     })
   }
-  devFocus(0)
+  devLayout(0)
 
   const $ = (id) => document.getElementById(id)
-  const devSub = $('dev-sub'), devTimer = $('dev-timer'), devLive = $('dev-live')
-  function sub(text) {
-    devSub.style.opacity = 0
-    setTimeout(() => { devSub.innerHTML = text; devSub.style.opacity = 1 }, 260)
-  }
-  function tap(x, y) {
-    const t = $('dev-tap')
-    t.style.left = x + 'px'; t.style.top = y + 'px'
-    t.classList.remove('go'); void t.offsetWidth; t.classList.add('go')
-  }
-  let tourStart = 0, timerId = 0
-  const fmtT = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+  const finger = $('dev-finger')
+  const later = (ms) => new Promise((r) => { timers.push(setTimeout(r, ms)) })
+  let timers = [], run = 0
 
-  function devReset() {
-    devFocus(0)
-    devSub.textContent = 'One minute for you.'; devSub.style.opacity = 1
-    devTimer.textContent = 'Talk to ZEIT'
-    devLive.innerHTML = 'Listening · <b>Stop</b>'
-    ;['dev-tourbar', 'dev-bracket', 'dev-scrim', 'dev-sheet'].forEach((id) => $(id).classList.remove('on'))
-    $('dev-wash').classList.remove('green')
-    clearInterval(timerId)
+  function fingerAt(x, y, down) {
+    finger.classList.remove('moving')
+    finger.style.left = x + 'px'; finger.style.top = y + 'px'
+    finger.classList.toggle('down', !!down)
+  }
+  // a real swipe: the finger lands, drags the row with it, lets go, and the row springs on
+  async function swipe(id) {
+    fingerAt(300, 520, true)
+    await later(160)
+    if (id !== run) return
+    devRail.classList.add('dragging')
+    finger.classList.add('moving')
+    finger.style.left = '120px'
+    const t0 = performance.now()
+    await new Promise((res) => {
+      const f = (t) => {
+        if (id !== run) return res()
+        const p = Math.min(1, (t - t0) / 420), e = 1 - Math.pow(1 - p, 2)
+        devLayout(devF, -150 * e)
+        p < 1 ? requestAnimationFrame(f) : res()
+      }
+      requestAnimationFrame(f)
+    })
+    if (id !== run) return
+    finger.classList.remove('down')
+    devRail.classList.remove('dragging')   // let go: the row springs on from where the finger left it
+    devF = (devF + 1) % devEls.length
+    devLayout(devF)
+  }
+  async function tap(x, y) {
+    fingerAt(x, y, true)
+    await later(220)
+    finger.classList.remove('down')
+  }
+  // words arrive one at a time, the way speech does
+  async function say(el, text, perWord, id) {
+    el.textContent = ''
+    for (const w of text.split(' ')) {
+      if (id !== run) return
+      const s = document.createElement('span')
+      s.className = 'w-in'; s.textContent = w + ' '
+      el.appendChild(s)
+      await later(perWord)
+    }
+  }
+  const state = (t) => { $('dt-state').textContent = t }
+  const mode = (m) => { dev.classList.toggle('listening', m === 'listen'); dev.classList.toggle('speaking', m === 'speak') }
+
+  async function exchange(id, question, answer, source) {
+    $('dt-you').textContent = ''; $('dt-zeit').textContent = ''; $('dt-src').classList.remove('on')
+    await tap(195, 290)                                  // tap the orb
+    if (id !== run) return
+    mode('listen'); state("Listening. Pause when you're done.")
+    await say($('dt-you'), question, 260, id)
+    await later(700); if (id !== run) return
+    mode(''); state('Got it')
+    await later(600); if (id !== run) return
+    state('Checking your papers')
+    await later(900); if (id !== run) return
+    mode('speak'); state('')
+    await say($('dt-zeit'), answer, 210, id)
+    if (id !== run) return
+    $('dt-src').textContent = source; $('dt-src').classList.add('on')
+    mode(''); state('Tap to talk')
   }
 
-  const SCRIPT = [
-    [1600, () => tap(195, 790)],
-    [1900, () => { $('dev-scrim').classList.add('on'); $('dev-sheet').classList.add('on') }],
-    [4200, () => { tap(195, 737); $('ds-btn').classList.add('press') }],
-    [4500, () => {
-      $('ds-btn').classList.remove('press')
-      $('dev-sheet').classList.remove('on'); $('dev-scrim').classList.remove('on')
-      $('dev-tourbar').classList.add('on')
-      tourStart = performance.now()
-      devTimer.textContent = '0:00'
-      timerId = setInterval(() => { devTimer.textContent = fmtT(Math.floor((performance.now() - tourStart) / 1000)) }, 250)
-      devFocus(1); sub('A short tour of your Home.')
-    }],
-    [7300, () => { devFocus(0); $('dev-bracket').classList.add('on'); sub('One minute for you.') }],
-    [9900, () => { devFocus(2); sub('Record it and get clear notes.') }],
-    [12500, () => { devFocus(3); sub('Type a question any time.') }],
-    [15100, () => { devFocus(4); sub('This card is coming soon.') }],
-    [17000, () => { devFocus(5) }],
-    [18700, () => { devFocus(6); $('dev-wash').classList.add('green'); sub('Health papers now.<br />Insurance comes soon.') }],
-    [21800, () => { devLive.innerHTML = 'Ending call · <b>Stop</b>' }],
-    [22800, () => {
-      $('dev-tourbar').classList.remove('on'); $('dev-bracket').classList.remove('on'); $('dev-wash').classList.remove('green')
-      clearInterval(timerId); devTimer.textContent = 'Talk to ZEIT'
-      devFocus(0); sub('One minute for you.')
-    }],
-  ]
-  const LOOP_MS = 26000
-  let timers = []
-  function play() {
-    stop()
-    devReset()
-    SCRIPT.forEach(([t, fn]) => timers.push(setTimeout(fn, t)))
-    timers.push(setTimeout(play, LOOP_MS))
+  async function play() {
+    const id = ++run
+    stopTimers()
+    devF = 0; devLayout(0); dev.classList.remove('talking', 'listening', 'speaking')
+    state('Tap to talk'); $('dt-you').textContent = ''; $('dt-zeit').textContent = ''; $('dt-src').classList.remove('on')
+    await later(1400); if (id !== run) return
+    await swipe(id); await later(1300); if (id !== run) return
+    await swipe(id); await later(1300); if (id !== run) return
+    await tap(195, 240); if (id !== run) return             // the orb on Home
+    dev.classList.add('talking')
+    await later(1100); if (id !== run) return
+    await exchange(id, 'What did my last blood test say?', 'Your HbA1c was 5.4 %. That is in the normal range.', 'Blood panel · Mar 2023')
+    await later(2200); if (id !== run) return
+    await exchange(id, 'Do I need to do anything?', 'Nothing urgent. Ask your doctor about a recheck at your next visit.', 'Blood panel · Mar 2023')
+    await later(2600); if (id !== run) return
+    await tap(353, 100)                                     // close
+    dev.classList.remove('talking'); mode('')
+    devF = 0; devLayout(0)
+    await later(2600); if (id !== run) return
+    play()
   }
-  function stop() { timers.forEach(clearTimeout); timers = []; clearInterval(timerId) }
+  function stopTimers() { timers.forEach(clearTimeout); timers = [] }
+  function stop() { run++; stopTimers(); finger.classList.remove('down'); mode('') }
   if (!reduce && 'IntersectionObserver' in window) {
     let playing = false
     new IntersectionObserver((es) => es.forEach((e) => {
       if (e.isIntersecting && !playing) { playing = true; play() }
-      else if (!e.isIntersecting && playing) { playing = false; stop(); devReset() }
+      else if (!e.isIntersecting && playing) { playing = false; stop() }
     }), { threshold: 0.35 }).observe(devScreen)
   }
 
