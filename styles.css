@@ -114,11 +114,12 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 .people { padding-top: 24px; padding-bottom: var(--section); text-align: center; overflow: hidden; }
 .people-head { max-width: 1180px; margin: 0 auto; }
 .wall { margin-top: 56px; display: grid; gap: 12px; }
-/* each row holds its tiles twice; sliding by half its width loops without a seam */
-.wall-row { display: flex; width: max-content; animation: drift var(--dur, 90s) linear infinite; }
-.wall-row.rev { animation-direction: reverse; --dur: 110s; }
-.wall:hover .wall-row { animation-play-state: paused; }
-@keyframes drift { to { transform: translateX(-50%); } }
+/* each row holds its set of tiles four times (wider than any screen); sliding by half its
+   width loops without a seam. Top row runs left to right, bottom row right to left */
+.wall-row { display: flex; width: max-content; animation: wall-loop var(--dur, 80s) linear infinite; }
+.wall-row:first-child { animation-direction: reverse; }
+.wall-row.rev { animation-direction: normal; --dur: 95s; }
+@keyframes wall-loop { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .tile {
   position: relative; flex: none; width: var(--tw, 252px); aspect-ratio: 4 / 3; margin: 0 12px 0 0;
   border-radius: 20px; overflow: hidden; background: #e7eaee;
