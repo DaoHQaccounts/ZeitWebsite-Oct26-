@@ -1,7 +1,9 @@
-/* Zeit Health — website v2.
+/* Zeit Health — website v3.
    Motion numbers come from the app (zeit-mvp/src/motion.js): the rail spring, the off-centre
-   scale/opacity/drop, the -30px tuck, the 3.1-step entry sweep, the press, the sheet rise and
-   the greeting's blur-in. The rail itself is a plain-JS port; no framework, no build step. */
+   scale/opacity/drop, the -30px tuck, the press, the sheet rise and the greeting's blur-in.
+   New for v3: the hero answers the scroll, the cards arrive as a stacked deck that fans out
+   into the rail while the section is pinned, and the rail tilts in 3D under a drag.
+   Plain JS; no framework, no build step. */
 
 ;(() => {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -19,7 +21,7 @@
   const RISE = { k: 480, c: 44, m: 0.9 }      // springSheet: the sheet rise
   const CARD = { off: 0.88, offOpacity: 0.55, offDrop: 6, gap: -30, sweep: 3.1, press: 0.97, pressOff: 0.84 }
   const STAGGER = { greeting: 0.07, rail: 0.05 }
-  const ENTER = { y: 12, blur: 4 }, ENTER_RAIL = { y: 26 }
+  const ENTER = { y: 14, blur: 6 }, ENTER_RAIL = { y: 26 }
 
   class Spring {
     constructor(value, cfg = SETTLE) { this.x = value; this.v = 0; this.to = value; this.cfg = cfg }
@@ -77,13 +79,13 @@
     return d
   }
   const VIZ = {
-    pulse: (big) => `<svg viewBox="0 0 200 46" aria-hidden="true"><path class="draw" d="${pulsePath()}" fill="none" stroke="#3550d8" stroke-width="${big ? 1.4 : 1.7}" stroke-linejoin="round" stroke-linecap="round"/></svg>`,
+    pulse: (big) => `<svg viewBox="0 0 200 46" aria-hidden="true"><path class="draw" d="${pulsePath()}" fill="none" stroke="#3550d8" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round"/></svg>`,
     sleep: (big) => {
       const lv = [1, 2, 3, 2, 3, 1, 0, 2, 3, 2, 1, 2, 3, 3, 1, 0, 2, 1], w = 200 / lv.length
       let d = `M0 ${8 + lv[0] * 10}`
       lv.forEach((l, i) => { d += ` H${(i * w).toFixed(1)} V${8 + l * 10} H${((i + 1) * w).toFixed(1)}` })
       const rem = lv.map((l, i) => l === 0 ? `<rect class="pop" style="--i:${i}" x="${(i * w + 1).toFixed(1)}" y="6" width="${(w - 2).toFixed(1)}" height="4" rx="2" fill="#f19a5a"/>` : '').join('')
-      return `<svg viewBox="0 0 200 46" aria-hidden="true"><g stroke="#ece3f6" stroke-width="1">${[8, 18, 28, 38].map((y) => `<line x1="0" x2="200" y1="${y}" y2="${y}"/>`).join('')}</g><path class="draw" d="${d}" fill="none" stroke="#c77fe6" stroke-width="${big ? 1.6 : 2}"/>${rem}</svg>`
+      return `<svg viewBox="0 0 200 46" aria-hidden="true"><g stroke="#efe8f7" stroke-width=".75">${[8, 18, 28, 38].map((y) => `<line x1="0" x2="200" y1="${y}" y2="${y}"/>`).join('')}</g><path class="draw" d="${d}" fill="none" stroke="#c77fe6" stroke-width="1.25"/>${rem}</svg>`
     },
     bars: (vals, color, big) => {
       const max = Math.max(...vals), w = 200 / vals.length
@@ -133,24 +135,6 @@
       rows: [['Dose', '400 µg daily'], ['When', 'with breakfast'], ['Started', '2021'], ['Status', 'paused 2022-06']],
       plain: 'A daily vitamin often taken before and during pregnancy. You paused it in June 2022.',
     },
-    {
-      id: 'vitd', title: 'Vitamin D', year: '2025', pill: 'Vitamin D · 32',
-      g: 'linear-gradient(160deg, #4fb48c 0%, #7ccba3 50%, #c4ead2 100%)',
-      label: 'Blood test · 5 results', num: 32, unit: 'ng/mL',
-      viz: () => VIZ.bars([18, 21, 24, 27, 29, 32], '#3e9e78'), sub: 'Up from 18 in 2021 · Ref 30–100',
-      idx: '22', code: 'LAB · 2025',
-      rows: [['Latest', '32 ng/mL'], ['Reference', '30–100 ng/mL'], ['First result', '18 ng/mL · 2021'], ['Results', '5']],
-      plain: 'Your vitamin D has climbed back into the normal range over the last four years.',
-    },
-    {
-      id: 'steps', title: 'Steps · 30-day', year: '2026', pill: 'Steps · 8.4k',
-      g: 'linear-gradient(105deg, #2d8fb3 0%, #4fb6cf 50%, #a6e0ec 100%)',
-      label: 'Phone · 30 days', num: 8412, unit: 'steps / day',
-      viz: () => VIZ.bars([6, 9, 7, 8, 11, 5, 9, 10, 8, 7, 12, 9, 8, 10], '#2d8fb3'), sub: 'Best day 12,104 · Goal 8,000',
-      idx: '31', code: 'ACT · 2026',
-      rows: [['Daily average', '8,412'], ['Best day', '12,104'], ['Goal', '8,000'], ['Source', 'Phone']],
-      plain: 'You beat your daily goal on most days this month.',
-    },
   ]
 
   const fmt = (c, v) => c.dec ? v.toFixed(c.dec) : Math.round(v).toLocaleString('en-US')
@@ -190,17 +174,26 @@
     }
     return busy
   })
-  requestAnimationFrame(() => document.querySelector('.hero-orb').classList.add('in'))
+  const heroOrb = document.getElementById('hero-orb')
+  const heroWords = document.getElementById('hero-words')
+  const heroFoot = document.getElementById('hero-foot')
+  requestAnimationFrame(() => heroOrb.classList.add('in'))
 
   // ---- The rail (app: CardRail.jsx + motion.js CARD) -------------------------------------
+  // `spread` runs 0 -> 1 with the scroll while the section is pinned: at 0 the cards are a
+  // stacked deck, at 1 they are the app's rail. Every card's target is a blend of the two, and
+  // the app's rail spring follows the target, so the scroll never feels mechanical.
   const rail = document.getElementById('rail')
   const dotsEl = document.getElementById('dots')
   const pill = document.getElementById('pill')
+  const cardsSec = document.getElementById('cards')
+  const cardsHead = document.getElementById('cards-head')
+  const railFoot = document.getElementById('rail-foot')
   const n = CARDS.length
-  const PAINT = 1, SWEEP_WIN = 3, SWEEP_MS = 760
 
-  let focus = 0, revealed = false, sweeping = false, guide = 0, drag = null, cw = 240
+  let focus = 0, spread = reduce ? 1 : 0, drag = null, cw = 260
   const step = () => cw + CARD.gap
+  const tilt = new Spring(0, PRESS)
 
   const els = CARDS.map((c, i) => {
     const el = document.createElement('div')
@@ -209,36 +202,39 @@
     el.dataset.i = i
     el.innerHTML = faceHTML(c)
     rail.appendChild(el)
-    // a drawn line needs its own length to draw from zero
     el.querySelectorAll('.draw').forEach((p) => p.style.setProperty('--len', Math.ceil(p.getTotalLength())))
     const dot = document.createElement('span')
     dot.className = 'rail-dot'
     dotsEl.appendChild(dot)
     return {
       el, dot, c, drawn: false,
-      x: new Spring(0, SPRING), y: new Spring(ENTER_RAIL.y, SPRING), s: new Spring(CARD.off, SPRING), o: new Spring(0, SPRING),
-      p: new Spring(1, PRESS),
+      x: new Spring(0, SPRING), y: new Spring(ENTER_RAIL.y, SPRING), s: new Spring(1, SPRING),
+      o: new Spring(0, SPRING), r: new Spring(0, SPRING), p: new Spring(1, PRESS),
     }
   })
-  const measure = () => { cw = els[0].el.offsetWidth || 240 }
+  const measure = () => { cw = els[0].el.offsetWidth || 260 }
   measure()
 
   const delta = (i) => { const raw = i - focus; return raw - n * Math.round(raw / n) }
+  const lerp = (a, b, t) => a + (b - a) * t
+  const ease = (t) => 1 - Math.pow(1 - t, 3)
 
-  function layout({ entering = false, snapHidden = true } = {}) {
+  function layout() {
+    const t = ease(spread), open = spread > 0.98
     els.forEach((k, i) => {
       const d = delta(i), ad = Math.abs(d), centred = d === 0
-      const win = sweeping ? SWEEP_WIN : PAINT
-      const tx = d * step() + guide
-      const delay = entering ? 0.16 + STAGGER.rail * Math.min(3, ad) : 0
-      const opacity = !revealed ? 0 : centred ? 1 : ad <= win ? CARD.offOpacity : 0
-      // a card nobody can see now or next step does not need a spring
-      if (snapHidden && ad > win + 1) { k.x.jump(tx); k.o.jump(opacity) }
-      else { k.x.set(tx); k.o.set(opacity, delay) }
-      k.y.set(revealed ? (centred ? 0 : CARD.offDrop) : ENTER_RAIL.y, delay)
-      k.s.set(centred ? 1 : CARD.off, delay)
+      // the deck: cards stacked behind the top one, each a little higher, smaller and turned
+      const deckY = -ad * 14, deckS = 1 - ad * 0.06, deckR = d * 2.2, deckO = ad <= 2 ? 1 : 0
+      // the rail: the app's resting layout
+      const railX = d * step(), railY = centred ? 0 : CARD.offDrop
+      const railS = centred ? 1 : CARD.off, railO = centred ? 1 : ad <= 1 ? CARD.offOpacity : 0
+      k.x.set(lerp(0, railX, t))
+      k.y.set(lerp(deckY, railY, t))
+      k.s.set(lerp(deckS, railS, t))
+      k.r.set(lerp(deckR, 0, t))
+      k.o.set(lerp(deckO, railO, t))
 
-      const visible = revealed && ad <= 1
+      const visible = open && ad <= 1
       k.el.classList.toggle('hi', centred)
       k.el.style.zIndex = 10 - ad
       k.el.style.pointerEvents = visible ? 'auto' : 'none'
@@ -247,14 +243,17 @@
       k.el.setAttribute('aria-label', 'Open ' + k.c.title + ' card')
       k.dot.classList.toggle('on', centred)
     })
+    cardsHead.style.opacity = reduce ? 1 : clamp01(0.25 + spread * 1.5)
+    cardsHead.style.transform = reduce ? '' : `translateY(${(1 - t) * 18}px)`
+    railFoot.style.opacity = reduce ? 1 : clamp01((spread - 0.6) / 0.35)
     loop.wake()
   }
 
   loop.add((dt) => {
-    const busy = stepAll(els.flatMap((k) => [k.x, k.y, k.s, k.o, k.p]), dt)
+    const busy = stepAll(els.flatMap((k) => [k.x, k.y, k.s, k.o, k.r, k.p]).concat(tilt), dt)
     const dx = drag ? drag.dx : 0
     for (const k of els) {
-      k.el.style.transform = `translate3d(${k.x.x + dx}px, ${k.y.x}px, 0) scale(${k.s.x * k.p.x})`
+      k.el.style.transform = `translate3d(${k.x.x + dx}px, ${k.y.x}px, 0) rotateY(${tilt.x}deg) rotateZ(${k.r.x}deg) scale(${k.s.x * k.p.x})`
       k.el.style.opacity = clamp01(k.o.x)
     }
     return busy || !!drag
@@ -262,14 +261,14 @@
 
   // the centred card comes alive: its line draws and its number counts up, once
   function wake(k) {
-    if (k.drawn || !revealed) return
+    if (k.drawn || spread < 0.9) return
     k.drawn = true
     k.el.classList.add('live')
     const num = k.el.querySelector('.zc-num[data-v]')
     if (!num || reduce) return
-    const to = +num.dataset.v, t0 = performance.now(), dur = 900
-    const tick = (t) => {
-      const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3)
+    const to = +num.dataset.v, t0 = performance.now(), dur = 1100
+    const tick = (now) => {
+      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3)
       num.textContent = fmt(k.c, to * e)
       if (p < 1) requestAnimationFrame(tick)
     }
@@ -281,46 +280,39 @@
     clearTimeout(pillTimer)
     if (reduce || !pill.textContent) { pill.textContent = text; return }
     pill.style.opacity = 0
-    pillTimer = setTimeout(() => { pill.textContent = text; pill.style.opacity = 1 }, 160)
+    pillTimer = setTimeout(() => { pill.textContent = text; pill.style.opacity = 1 }, 200)
   }
 
   function setFocus(i, moveDomFocus) {
     focus = (i + n) % n
     layout()
     setPill(CARDS[focus].pill)
-    setTimeout(() => wake(els[focus]), 180)
+    setTimeout(() => wake(els[focus]), 200)
     if (moveDomFocus) els[focus].el.focus({ preventScroll: true })
+  }
+
+  // the scroll drives the spread while the section is pinned
+  function onCardsScroll() {
+    if (reduce) return
+    const r = cardsSec.getBoundingClientRect()
+    const run = cardsSec.offsetHeight - window.innerHeight
+    const p = clamp01(-r.top / (run * 0.7))
+    if (Math.abs(p - spread) < 0.001) return
+    spread = p
+    layout()
+    if (spread > 0.9) wake(els[focus])
   }
 
   layout()
   setPill(CARDS[0].pill)
-
-  // the entry sweep (app R18 / V1 R10-3): the rail arrives 3.1 cards off to the right and
-  // travels left into place, saying "this row moves sideways, and you start here"
-  function reveal() {
-    if (revealed) return
-    revealed = true
-    if (reduce) { layout(); wake(els[focus]); return }
-    sweeping = true
-    guide = step() * CARD.sweep
-    els.forEach((k, i) => k.x.jump(delta(i) * step() + guide))
-    layout({ entering: true, snapHidden: false })
-    setTimeout(() => { guide = 0; layout({ entering: true, snapHidden: false }) }, 160)
-    setTimeout(() => { sweeping = false; layout(); wake(els[focus]) }, 160 + SWEEP_MS)
-  }
-  if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver((es) => {
-      if (es.some((e) => e.isIntersecting)) { reveal(); io.disconnect() }
-    }, { threshold: 0.3 })
-    io.observe(rail)
-  } else reveal()
-
+  if (reduce) wake(els[0])
   window.addEventListener('resize', () => { measure(); layout() })
 
   // ---- Gestures: a swipe only when it clearly travels or flicks; anything else is a tap ----
+  // While dragging, the rail turns toward the finger: a small 3D tilt that springs back.
   const SWIPE = 44, FLICK = 520
   rail.addEventListener('pointerdown', (e) => {
-    if (e.button !== 0 || !e.isPrimary) return
+    if (e.button !== 0 || !e.isPrimary || spread < 0.98) return
     const cardEl = e.target.closest('.zc')
     if (!cardEl) return
     const i = +cardEl.dataset.i
@@ -331,18 +323,19 @@
   window.addEventListener('pointermove', (e) => {
     if (!drag || e.pointerId !== drag.pid) return
     drag.dx = e.clientX - drag.x
+    if (!reduce) tilt.set(Math.max(-14, Math.min(14, drag.dx / 9)))
   })
   function endGesture(e) {
     if (!drag || e.pointerId !== drag.pid) return
     const g = drag
     drag = null
     els[g.i].p.set(1)
+    tilt.set(0)
     els.forEach((k) => { k.x.x += g.dx })   // the release continues from where the finger was
     if (e.type === 'pointercancel') { layout(); return }
     const vx = (g.dx / Math.max(performance.now() - g.t, 1)) * 1000
     if (g.dx < -SWIPE || (vx < -FLICK && g.dx < -14)) return setFocus(focus + 1)
     if (g.dx > SWIPE || (vx > FLICK && g.dx > 14)) return setFocus(focus - 1)
-    // a tap on any visible card centres it and opens it, in one move
     setFocus(g.i)
     openCard(g.i)
   }
@@ -417,15 +410,37 @@
 
   // ---- Small things: top bar edge, reveals, sign-up, year --------------------------------
   const topbar = document.querySelector('.topbar')
-  const onScroll = () => topbar.classList.toggle('scrolled', window.scrollY > 8)
-  window.addEventListener('scroll', onScroll, { passive: true }); onScroll()
+  const phone = document.getElementById('phone')
 
-  const revealEls = document.querySelectorAll('.about .lede, .about .pillars li, .optin')
+  // one scroll handler, once per frame: the top bar, the hero, the deck and the phone
+  let ticking = false
+  function onScroll() {
+    ticking = false
+    const y = window.scrollY, vh = window.innerHeight
+    topbar.classList.toggle('scrolled', y > 8)
+    if (!reduce) {
+      // the hero lifts away and the orb sinks a little slower than the page
+      const hp = clamp01(y / (vh * 0.8))
+      heroWords.style.transform = `translateY(${-hp * 60}px)`
+      heroWords.style.opacity = 1 - hp * 0.9
+      heroFoot.style.opacity = 1 - hp * 2
+      heroOrb.style.transform = `translateY(${hp * 90}px) scale(${1 + hp * 0.15})`
+      // the phone drifts against the scroll, just enough to feel like depth
+      const pr = phone.getBoundingClientRect()
+      const pp = (pr.top + pr.height / 2 - vh / 2) / vh
+      phone.style.transform = `translateY(${(pp * 40).toFixed(1)}px)`
+    }
+    onCardsScroll()
+  }
+  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll) } }, { passive: true })
+  onScroll()
+
+  const revealEls = document.querySelectorAll('.product-copy, .about .h2, .about .lede, .pillars li, .updates > *')
   if ('IntersectionObserver' in window && !reduce) {
     revealEls.forEach((el) => el.classList.add('reveal'))
     const io2 = new IntersectionObserver((es) => es.forEach((e) => {
       if (e.isIntersecting) { e.target.classList.add('in'); io2.unobserve(e.target) }
-    }), { threshold: 0.15 })
+    }), { threshold: 0.15, rootMargin: '0px 0px -8% 0px' })
     revealEls.forEach((el) => io2.observe(el))
   }
 
@@ -448,7 +463,7 @@
       if (OPTIN_ENDPOINT) {
         const res = await fetch(OPTIN_ENDPOINT, {
           method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ email, source: 'website-v2' }),
+          body: JSON.stringify({ email, source: 'website-v3' }),
         })
         if (!res.ok) throw new Error('status ' + res.status)
       }

@@ -1,15 +1,19 @@
-# Zeit Health — website v2
+# Zeit Health — website v3
 
 Mobile-first marketing site. Plain HTML, CSS and JS: no framework, no build step.
 
 ## Sections
 
-1. **Hero** — four words: simple / secure / health / superapp
-2. **Card system** — company-style cards (colour field + data half) on the app's rail motion
-   entry sweep, swipe and tap-to-open (ported from `zeit-flows-app/src/components/CardRail.jsx`)
-3. **About** — short intro and four pillars
-4. **Opt-in** — email sign-up for updates
-5. **Footer**
+1. **Hero** — simple / secure / health / superapp, with the app's orb; lifts away on scroll
+2. **Cards** — company-style cards; a stacked deck that fans into the app's rail as you scroll
+3. **The app** — the real home screen in a phone frame
+4. **About** — short intro and four pillars
+5. **Opt-in** — email sign-up for updates
+6. **Footer**
+
+## Share it
+
+`share/zeit-health-v3.html` is the whole site in one file. Send it; it opens in any browser.
 
 ## Run it
 
@@ -32,3 +36,6 @@ python3 -m http.server 4801
 | `styles.css` | All styles; tokens copied from the app |
 | `app.js` | Card rail, springs, opened-card sheet, sign-up form |
 | `assets/favicon.svg` | Tab icon |
+| `assets/app-home.webp` | App home screen for the phone frame |
+| `assets/og.png` | Preview image for shared links (needs the live domain in `og:image`) |
+| `share/` | Single-file builds to send around |

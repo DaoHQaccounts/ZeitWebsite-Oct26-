@@ -5,135 +5,128 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Zeit Health — simple, secure health superapp</title>
   <meta name="description" content="Zeit Health keeps your results, sleep, pulse and medicines in one calm record. Simple, secure, made for the whole family." />
-  <meta name="theme-color" content="#eef1f6" />
+  <meta name="theme-color" content="#f3f5f8" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Zeit Health" />
+  <meta property="og:description" content="Simple. Secure. Health superapp." />
+  <meta property="og:image" content="assets/og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" />
   <link rel="stylesheet" href="styles.css" />
   <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
 
   <header class="topbar">
-    <a class="brand" href="#top" aria-label="Zeit Health home">
-      <span class="brand-word">ZEIT</span>
-      <span class="brand-sub">Health</span>
-    </a>
-    <a class="topbar-cta" href="#updates">Get updates</a>
+    <a class="wordmark" href="#top" aria-label="Zeit Health home">ZEIT</a>
+    <a class="topbar-link" href="#updates">Get updates</a>
   </header>
 
   <main id="top">
 
-    <!-- 1 · HERO: four words and the orb -->
-    <section class="hero" aria-label="Zeit Health">
-      <h1 class="hero-words">
-        <span class="w">simple</span>
-        <span class="w">secure</span>
-        <span class="w">health</span>
-        <span class="w">superapp.</span>
-      </h1>
-      <div class="hero-orb" aria-hidden="true">
+    <!-- 1 · HERO -->
+    <section class="hero" id="hero" aria-label="Zeit Health">
+      <div class="hero-orb" id="hero-orb" aria-hidden="true">
         <span class="orb-blob b1"></span>
         <span class="orb-blob b2"></span>
         <span class="orb-blob b3"></span>
       </div>
-      <a class="scroll-cue" href="#cards" aria-label="Scroll to the cards">
-        <span class="cue-line" aria-hidden="true"></span>
-      </a>
+      <h1 class="hero-words" id="hero-words">
+        <span class="w">simple</span>
+        <span class="w">secure</span>
+        <span class="w">health</span>
+        <span class="w">superapp</span>
+      </h1>
+      <p class="hero-foot" id="hero-foot"><span>Zeit Health</span><span>Scroll</span></p>
     </section>
 
-    <!-- 2 · THE CARD SYSTEM -->
+    <!-- 2 · THE CARDS: a deck that fans out into the rail as you scroll -->
     <section class="cards" id="cards" aria-labelledby="cards-h">
-      <div class="pad">
-        <h2 id="cards-h" class="sec-h">Your whole record,<br />one card at a time.</h2>
-        <p class="sec-sub">Swipe through. Tap a card to open it.</p>
-      </div>
-      <div class="rail" id="rail" role="group" aria-label="Health cards, use arrow keys to browse"></div>
-      <div class="rail-foot">
-        <span class="mono-pill" id="pill" aria-live="polite"></span>
-        <div class="rail-dots" id="dots" aria-hidden="true"></div>
-        <p class="sample-note">Sample data</p>
+      <div class="cards-stage">
+        <div class="cards-head pad" id="cards-head">
+          <h2 id="cards-h" class="h2">Your whole record.<br /><span class="soft">One card at a time.</span></h2>
+        </div>
+        <div class="rail" id="rail" role="group" aria-label="Health cards, use arrow keys to browse"></div>
+        <div class="rail-foot" id="rail-foot">
+          <span class="mono-pill" id="pill" aria-live="polite"></span>
+          <div class="rail-dots" id="dots" aria-hidden="true"></div>
+        </div>
       </div>
     </section>
 
-    <!-- 3 · ABOUT -->
+    <!-- 3 · THE APP -->
+    <section class="product pad" aria-labelledby="product-h">
+      <div class="product-copy">
+        <p class="small soft">The app</p>
+        <h2 id="product-h" class="h2">One minute a day.<br /><span class="soft">That is all it asks.</span></h2>
+      </div>
+      <figure class="phone" id="phone">
+        <div class="phone-screen">
+          <div class="phone-status" aria-hidden="true"><span>9:41</span><span class="island"></span><span class="bars"></span></div>
+          <img src="assets/app-home.webp" width="720" height="1473" loading="lazy" decoding="async"
+               alt="The Zeit Health home screen: a greeting, the Talk to ZEIT orb and a Daily Check-In card." />
+        </div>
+        <figcaption class="sr-only">Zeit Health app, home screen</figcaption>
+      </figure>
+    </section>
+
+    <!-- 4 · ABOUT -->
     <section class="about pad" aria-labelledby="about-h">
-      <h2 id="about-h" class="sec-h">Your health,<br />finally in one place.</h2>
+      <h2 id="about-h" class="h2">Your health,<br /><span class="soft">finally in one place.</span></h2>
       <p class="lede">
         Lab results, sleep, pulse, medicines, letters from your doctor. Today they live in
-        drawers, inboxes and five different apps. Zeit Health brings them into one record
-        and explains every part of it in plain words.
+        drawers, inboxes and five different apps. Zeit brings them into one record and
+        explains every part of it in plain words.
       </p>
-
-      <ul class="pillars">
-        <li>
-          <span class="mono-k">01 · Simple</span>
-          <b>One card for each thing that matters.</b>
-          <span>No menus to learn. Open the app and see what needs you today.</span>
-        </li>
-        <li>
-          <span class="mono-k">02 · Secure</span>
-          <b>Your record is yours.</b>
-          <span>Private by default. You decide who sees what, and you can change it anytime.</span>
-        </li>
-        <li>
-          <span class="mono-k">03 · Health</span>
-          <b>Every result in plain words.</b>
-          <span>What was measured, what is normal, and what to ask your doctor.</span>
-        </li>
-        <li>
-          <span class="mono-k">04 · Superapp</span>
-          <b>One place for the whole family.</b>
-          <span>Results, sleep, medicines and appointments, for you and the people you care for.</span>
-        </li>
-      </ul>
+      <ol class="pillars">
+        <li><span class="n">01</span><div><b>Simple</b><p>One card for each thing that matters. Nothing to learn.</p></div></li>
+        <li><span class="n">02</span><div><b>Secure</b><p>Private by default. You decide who sees what.</p></div></li>
+        <li><span class="n">03</span><div><b>Health</b><p>Every result explained: what was measured, what is normal, what to ask.</p></div></li>
+        <li><span class="n">04</span><div><b>Superapp</b><p>Results, sleep, medicines and visits, for you and the people you care for.</p></div></li>
+      </ol>
     </section>
 
-    <!-- 4 · OPT-IN -->
+    <!-- 5 · OPT-IN -->
     <section class="updates pad" id="updates" aria-labelledby="updates-h">
-      <div class="optin">
-        <div class="optin-orb" aria-hidden="true">
-          <span class="orb-blob b1"></span>
-          <span class="orb-blob b2"></span>
-          <span class="orb-blob b3"></span>
-        </div>
-        <h2 id="updates-h" class="sec-h">Be first to try it.</h2>
-        <p class="sec-sub">We'll email you when Zeit Health opens. No spam, ever.</p>
-        <form class="optin-form" id="optin" novalidate>
-          <label class="sr-only" for="email">Email address</label>
-          <input id="email" name="email" type="email" inputmode="email" autocomplete="email"
-                 placeholder="you@email.com" required />
-          <button type="submit">Keep me posted</button>
-        </form>
-        <p class="optin-msg" id="optin-msg" role="status" aria-live="polite"></p>
-        <p class="fine">By joining you agree to get occasional product updates. Unsubscribe anytime.</p>
-      </div>
+      <h2 id="updates-h" class="h2">Be first to try it.</h2>
+      <p class="lede">One email when Zeit opens. Nothing else.</p>
+      <form class="optin-form" id="optin" novalidate>
+        <label class="sr-only" for="email">Email address</label>
+        <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="Your email" required />
+        <button type="submit" aria-label="Keep me posted">
+          <span>Keep me posted</span>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </form>
+      <p class="optin-msg small" id="optin-msg" role="status" aria-live="polite"></p>
     </section>
 
   </main>
 
-  <!-- 5 · FOOTER -->
+  <!-- 6 · FOOTER -->
   <footer class="footer pad">
-    <div class="foot-top">
-      <span class="brand"><span class="brand-word">ZEIT</span><span class="brand-sub">Health</span></span>
+    <div class="foot-row small">
       <nav class="foot-links" aria-label="Footer">
-        <a href="#cards">The app</a>
+        <a href="#cards">Cards</a>
         <a href="#updates">Updates</a>
       </nav>
+      <span class="soft">© <span id="year">2026</span> Zeit Health</span>
     </div>
-    <p class="foot-tag mono">SIMPLE · SECURE · HEALTH · SUPERAPP</p>
-    <p class="foot-legal">© <span id="year">2026</span> Zeit Health. All rights reserved.</p>
+    <p class="foot-note small soft">Values shown on cards are samples.</p>
+    <div class="foot-mark" aria-hidden="true">ZEIT</div>
   </footer>
 
   <!-- the opened card: rises from the bottom wearing the card's colour -->
   <div class="scrim" id="scrim" hidden></div>
   <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
-    <div class="sheet-veil" id="sheet-veil">
+    <div class="sheet-veil">
       <span class="streaks" aria-hidden="true"></span>
       <div class="grab" aria-hidden="true"></div>
       <button class="sheet-close" id="sheet-close" aria-label="Close card">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
       <div class="veil-head">
         <span class="veil-title" id="sheet-title"></span>
