@@ -12,7 +12,7 @@ cream knitwear, families of every age, a film camera at the edge of some frames.
 1b. **People** (new) — "One record for everyone you love": two rows of photos drifting slowly
 2. **Cards** — company-style cards; a stacked deck that fans into the app's rail as you scroll
 3. **The app** — the app in a phone frame, used the way a person would: swipe the cards, tap the orb, ask out loud, get an answer from the record. New: the phone stands in front of a photo of a person, which changes with each use case
-4. **About** — short intro and four pillars. New: a film-set photo and a wearables photo
+4. **About** — short intro and four pillars
 5. **Opt-in** — email sign-up for updates. New: a family photo above it
 6. **Footer**
 
