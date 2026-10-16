@@ -759,7 +759,7 @@
   // The use cases: each one swipes to its card on Home, asks the orb, and gets an answer
   // from the record. Values match the cards higher up the page, so the page tells one story.
   const USES = [
-    { swipes: [], q: 'How did I sleep this month?', a: 'About 6 h 58 min a night. Your best week was 7 h 22.', src: 'Ring sensor · 30 days' },
+    { swipes: [], intro: true, q: 'How did I sleep this month?', a: 'About 6 h 58 min a night. Your best week was 7 h 22.', src: 'Ring sensor · 30 days' },
     { swipes: [1], q: 'What should I ask at my visit on Friday?', a: 'Ask if your HbA1c needs a recheck, and if folic acid still makes sense for you.', src: 'Doctor visit · Fri 10:30' },
     { swipes: [-1], q: 'What did my last blood test say?', a: 'Your HbA1c was 5.4 %. That is in the normal range.', src: 'Blood panel · Mar 2023' },
     { swipes: [-1, -1], q: 'When did I stop taking folic acid?', a: 'You paused it in June 2022. Before that you took 400 µg with breakfast.', src: 'Medicines · Folic acid 400 µg' },
@@ -773,7 +773,7 @@
     // the active line fills over the length of its scene
     cancelAnimationFrame(progRaf)
     const u = USES[i], words = (t) => t.split(' ').length
-    const dur = (1.1 + u.swipes.length * 1.6 + 2.2 + words(u.q) * 0.26 + 2.2 + words(u.a) * 0.21 + 4.4) * 1000
+    const dur = (1.1 + u.swipes.length * 1.6 + (u.intro ? 3.3 : 0) + 2.2 + words(u.q) * 0.26 + 2.2 + words(u.a) * 0.21 + 4.4) * 1000
     const el = useEls[i], t0 = performance.now()
     const f = (t) => { if (el) el.style.setProperty('--p', Math.min(1, (t - t0) / dur).toFixed(3)); if (t - t0 < dur) progRaf = requestAnimationFrame(f) }
     progRaf = requestAnimationFrame(f)
@@ -786,12 +786,24 @@
     const u = USES[i]
     showUse(i)
     devF = 0; devLayout(0); dev.classList.remove('talking', 'listening', 'speaking')
+    $('dev-sheet').classList.remove('on'); $('dev-scrim').classList.remove('on')
     state('Tap to talk'); $('dt-you').textContent = ''; $('dt-zeit').textContent = ''; $('dt-src').classList.remove('on')
     await later(1100); if (id !== run) return
     for (const d of u.swipes) { await swipe(id, d); await later(1000); if (id !== run) return }
-    await tap(195, 240); if (id !== run) return             // the orb on Home
-    ORBS.home.poke()
-    dev.classList.add('talking')
+    if (u.intro) {
+      // Talk to ZEIT from the nav: the "Start here" sheet rises behind the cards
+      await tap(195, 790); if (id !== run) return
+      $('dev-scrim').classList.add('on'); $('dev-sheet').classList.add('on')
+      await later(2600); if (id !== run) return
+      await tap(195, 737); $('ds-btn').classList.add('press'); if (id !== run) return
+      await later(260); $('ds-btn').classList.remove('press')
+      $('dev-sheet').classList.remove('on'); $('dev-scrim').classList.remove('on')
+      dev.classList.add('talking')
+    } else {
+      await tap(195, 240); if (id !== run) return           // the orb on Home
+      ORBS.home.poke()
+      dev.classList.add('talking')
+    }
     await later(1000); if (id !== run) return
     await exchange(id, u.q, u.a, u.src)
     await later(3000); if (id !== run) return
