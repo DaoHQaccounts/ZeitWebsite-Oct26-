@@ -61,11 +61,13 @@
       <div class="product-copy">
         <p class="small soft">The app</p>
         <h2 id="product-h" class="h2">One minute a day.<br /><span class="soft">That is all it asks.</span></h2>
-        <ol class="uses" id="uses" aria-label="What you can ask">
-          <li><button class="use on" type="button" aria-pressed="true"><b>Your sleep</b><span>Ask how you slept this month.</span></button></li>
-          <li><button class="use" type="button" aria-pressed="false"><b>Before a visit</b><span>Know what to ask your doctor.</span></button></li>
-          <li><button class="use" type="button" aria-pressed="false"><b>Your results</b><span>Hear what a test means, in plain words.</span></button></li>
-          <li><button class="use" type="button" aria-pressed="false"><b>Your medicines</b><span>Check what you take, and when.</span></button></li>
+        <ol class="uses" id="uses" aria-label="What you can do">
+          <li><button class="use on" type="button" aria-pressed="true"><b>Talk to ZEIT</b><span>Ask out loud. It answers from your record.</span></button></li>
+          <li><button class="use" type="button" aria-pressed="false"><b>Record a visit</b><span>Get a clear transcript of what was said.</span></button></li>
+          <li><button class="use" type="button" aria-pressed="false"><b>Face Scan</b><span>A one-minute check with your camera.</span></button></li>
+          <li><button class="use" type="button" aria-pressed="false"><b>Health intake</b><span>Make sure your profile is right.</span></button></li>
+          <li><button class="use" type="button" aria-pressed="false"><b>Vault</b><span>Every letter and result in one place.</span></button></li>
+          <li><button class="use" type="button" aria-pressed="false"><b>Chat</b><span>Type a question any time.</span></button></li>
         </ol>
       </div>
       <figure class="phone" id="phone">
@@ -77,16 +79,16 @@
             <div class="dev-wash"></div>
             <div class="dev-home" id="dev-home">
               <h3 class="dev-h">Hi Katrin,<br />here is your record.</h3>
-              <p class="dev-sub">One minute for you.</p>
+              <p class="dev-sub" id="dev-sub">One minute for you.</p>
               <div class="dev-orb" id="dev-orb"><canvas class="orb-canvas" data-orb="home" data-res="160"></canvas></div>
               <div class="dev-rail" id="dev-rail"></div>
               <div class="dev-dots" id="dev-dots"></div>
             </div>
             <nav class="dev-nav" id="dev-nav">
-              <span class="ni on"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/></svg>Home</span>
-              <span class="ni"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3.2"/></svg>Vault</span>
+              <span class="ni on" data-tab="home"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/></svg>Home</span>
+              <span class="ni" data-tab="vault"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3.2"/></svg>Vault</span>
               <span class="ni talk"><span class="mini-orb"><canvas class="orb-canvas" data-orb="nav" data-res="96"></canvas></span><b>Talk to ZEIT</b></span>
-              <span class="ni"><svg viewBox="0 0 24 24"><path d="M5 5h14v10H9l-4 4z"/><path d="M8.5 9h7M8.5 12h5"/></svg>Chat</span>
+              <span class="ni" data-tab="chat"><svg viewBox="0 0 24 24"><path d="M5 5h14v10H9l-4 4z"/><path d="M8.5 9h7M8.5 12h5"/></svg>Chat</span>
               <span class="ni"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>Profile</span>
             </nav>
             <!-- the "Start here" sheet (v4): it rises BEHIND the Home cards, so the cards float on
@@ -111,10 +113,132 @@
               <p class="dt-state" id="dt-state">Tap to talk</p>
               <p class="dt-type">Type it instead</p>
             </div>
+            <!-- ===== use-case screens, copied from the 16 Oct screen recordings ===== -->
+            <!-- Record a visit (sheet) -->
+            <div class="scr sheet-scr" id="scr-visit">
+              <span class="sx">&times;</span>
+              <span class="cancel-pill">Cancel recording</span>
+              <p class="sk">RECORD YOUR VISIT</p>
+              <p class="sh" id="v-title">Ready to record</p>
+              <p class="ssub" id="v-sub">Recording starts when you tap the button.</p>
+              <span class="rec-pill"><i></i>RECORDING</span>
+              <div class="v-orb"><canvas class="orb-canvas" data-orb="visit" data-res="200"></canvas></div>
+              <p class="v-time" id="v-time">0:00</p>
+              <p class="v-line" id="v-line">Put the phone where everyone can hear.</p>
+              <p class="v-note" id="v-note">A visit can be up to 15 minutes long.</p>
+              <div class="v-done">
+                <div class="v-flower"></div>
+                <div class="v-rows">
+                  <b>Transcript ready</b>
+                  <p><span>Recording</span><span>Stopped</span></p>
+                  <p><span>Upload</span><span>Uploaded · Original retained</span></p>
+                  <p><span>Transcript</span><span>Transcript ready</span></p>
+                  <p><span>Summary</span><span>Summary in progress</span></p>
+                </div>
+                <p class="v-said">WHAT WAS SAID</p>
+                <div class="v-seg"><span>Unknown · Segment 0</span>Hi, how are you doing?</div>
+              </div>
+              <span class="s-btn" id="v-btn">Start recording</span>
+            </div>
+
+            <!-- Face Scan: intro sheet, then the live scan -->
+            <div class="scr sheet-scr" id="scr-face">
+              <span class="sx">&times;</span>
+              <p class="sk">FACE SCAN</p>
+              <p class="sh">Face Scan</p>
+              <div class="fs-art">
+                <div class="fs-card">
+                  <b>Face Scan</b>
+                  <p>Ready for your Face Scan. Use good light and keep still. Tap Start when you're ready.</p>
+                  <p>It measures you.</p>
+                  <span class="s-btn small" id="fs-start">Start</span>
+                  <span class="fs-exit">Exit</span>
+                </div>
+              </div>
+              <span class="fs-saved">Saved scans</span>
+            </div>
+            <div class="scr scan-scr" id="scr-scan">
+              <div class="scan-cam"><div class="scan-person"></div></div>
+              <div class="scan-bar"><span>ZEIT.SCAN</span><b id="scan-time">01:00</b></div>
+              <p class="scan-h" id="scan-h">Looking for your face</p>
+              <p class="scan-s" id="scan-s">Center your face in the frame</p>
+              <svg class="scan-ring" viewBox="0 0 300 300" aria-hidden="true">
+                <circle cx="150" cy="150" r="140" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
+                <circle id="scan-arc" cx="150" cy="150" r="140" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-dasharray="880" stroke-dashoffset="880" transform="rotate(-90 150 150)"/>
+              </svg>
+              <div class="scan-mesh" id="scan-mesh"></div>
+              <p class="scan-back">Back to Home</p>
+            </div>
+
+            <!-- Health intake (sheet) -->
+            <div class="scr sheet-scr" id="scr-intake">
+              <span class="sx">&times;</span>
+              <p class="sk">HEALTH INTAKE</p>
+              <p class="sh">Health intake</p>
+              <div class="in-body" id="in-body">
+                <p class="in-load" id="in-load">Loading health profile...</p>
+                <div class="in-view" id="in-profile">
+                  <p class="in-k">Your health profile · version 1</p>
+                  <p class="in-h">Your health profile</p>
+                  <p class="in-p">Answers you confirmed or marked not sure. Unsure answers are not confirmed facts.</p>
+                  <p class="in-sec">About you</p>
+                  <div class="in-f"><b>Name</b><span>Katrin Beispiel</span></div>
+                  <div class="in-f"><b>Date of birth</b><span>3 May 1990</span></div>
+                  <div class="in-f"><b>Sex at birth</b><span>Female</span></div>
+                  <div class="in-f"><b>Height</b><span>176 cm</span></div>
+                  <div class="in-f"><b>Weight</b><span>72 kg</span></div>
+                  <p class="in-sec">Health</p>
+                  <div class="in-f"><b>Medicines and supplements</b><span>Nothing right now</span></div>
+                  <div class="in-f"><b>Allergies</b><span>None that I know of</span></div>
+                </div>
+                <div class="in-view" id="in-check">
+                  <p class="in-k">Your health profile</p>
+                  <p class="in-h">Does this look right?</p>
+                  <p class="in-p">Check your answers. Change anything before you confirm.</p>
+                  <p class="in-sec">About you</p>
+                  <div class="in-f"><b>Name</b><span>Katrin Beispiel</span><em>From your profile</em><span class="in-opts"><i id="in-keep">Keep</i><i>Edit</i><i>Not sure</i></span></div>
+                  <div class="in-f"><b>Date of birth</b><span>3 May 1990</span><em>From your profile</em><span class="in-opts"><i>Keep</i><i>Edit</i><i>Not sure</i></span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vault (tab) -->
+            <div class="scr tab-scr" id="scr-vault">
+              <p class="t-h">Vault</p>
+              <span class="add-doc">Add a document</span>
+              <div class="chips"><i class="on">List</i><i>Visits</i><i>Face Scans</i><i>Check-ins</i><i>General</i></div>
+              <div class="docs" id="docs">
+                <div class="doc"><p class="doc-t"><span class="doc-i"></span>Lab result of 13 Oct 2026</p><div class="page"><em>READ</em><b>Laboratory report</b><i></i><i></i><i class="s"></i><i></i><i class="s"></i></div></div>
+                <div class="doc"><p class="doc-t"><span class="doc-i"></span>Doctor's letter, uploaded 16 Oct 2026 · 2 pages</p><p class="doc-m">No date · uploaded 16 Oct 2026</p><div class="page"><em>READ</em><b>Discharge summary</b><i></i><i class="s"></i><i></i><i></i><i class="s"></i></div></div>
+                <div class="doc"><p class="doc-t"><span class="doc-i"></span>Doctor's letter</p><p class="doc-m">No date · uploaded 16 Oct 2026</p><div class="page"><em>READ</em><b>Clinical letter</b><i></i><i></i><i class="s"></i><i></i></div></div>
+                <div class="doc"><p class="doc-t"><span class="doc-i"></span>Visit recording · 16 Oct 2026</p><p class="doc-m">Transcript · 7 seconds</p><div class="page"><em>READ</em><b>What was said</b><i></i><i class="s"></i><i></i></div></div>
+              </div>
+            </div>
+
+            <!-- Chat (tab): the list, then one conversation -->
+            <div class="scr tab-scr" id="scr-chat">
+              <div class="c-list" id="c-list">
+                <p class="t-h">Conversations</p>
+                <div class="c-new"><span>+</span><p><b>New conversation</b>What can I help with?</p></div>
+                <div class="c-row" id="c-first"><span class="c-i"></span><p><b>What is ferritin?</b>Ferritin is a protein that stores...</p><time>2:27 PM</time><em>Delete</em></div>
+                <div class="c-row"><span class="c-i"></span><p><b>My sister's haemoglobin</b>Your haemoglobin was 13.2 g...</p><time>2:26 PM</time><em>Delete</em></div>
+                <div class="c-row"><span class="c-i"></span><p><b>Can you see my check-in?</b>It's on the Daily Check-In car...</p><time>2:17 PM</time><em>Delete</em></div>
+                <div class="c-row"><span class="c-i"></span><p><b>Upload a letter</b>You can use Upload Documents...</p><time>2:19 PM</time><em>Delete</em></div>
+                <div class="c-row"><span class="c-i"></span><p><b>What can you do</b>Earlier statements, and show...</p><time>2:05 PM</time><em>Delete</em></div>
+              </div>
+              <div class="c-thread" id="c-thread">
+                <p class="c-back">&larr; All conversations</p>
+                <p class="c-title">What is ferritin?</p>
+                <p class="c-del">Delete conversation</p>
+                <span class="c-day">Today</span>
+                <div class="c-msgs" id="c-msgs"></div>
+                <div class="c-compose"><span>+</span><span class="mic"></span><p>Ask ZEIT anything...</p><span class="send"></span></div>
+              </div>
+            </div>
             <span class="dev-finger" id="dev-finger"></span>
           </div>
         </div>
-        <figcaption class="phone-cap small soft" id="phone-cap" aria-live="polite">Your sleep</figcaption>
+        <figcaption class="phone-cap small soft" id="phone-cap" aria-live="polite">Talk to ZEIT</figcaption>
       </figure>
     </section>
 

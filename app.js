@@ -171,6 +171,8 @@
           const q = j / 4
           gr.addColorStop(q, hueAt(p + q * 0.9, q < 0.5 ? 0 : q < 0.9 ? 1 : 2))
         }
+      } else if (this.tone === 'rec') {
+        gr.addColorStop(0, '#d8463f'); gr.addColorStop(0.55, '#ec7b6e'); gr.addColorStop(1, '#f7c3b8')
       } else {
         gr.addColorStop(0, '#2a43d2'); gr.addColorStop(0.55, '#5f7fee'); gr.addColorStop(1, '#b9cdfb')
       }
@@ -181,6 +183,7 @@
       const dx = cx + Math.cos(ca) * size * 0.28, dy = cy + Math.sin(ca) * size * 0.24
       gr = g.createRadialGradient(dx, dy, 0, dx, dy, size * 0.62)
       if (this.multi) { gr.addColorStop(0, hueAt(p + 1.3, 0, 0.8)); gr.addColorStop(1, hueAt(p + 1.3, 0, 0)) }
+      else if (this.tone === 'rec') { gr.addColorStop(0, 'rgba(170, 40, 40, .55)'); gr.addColorStop(1, 'rgba(170, 40, 40, 0)') }
       else { gr.addColorStop(0, 'rgba(24, 38, 150, .85)'); gr.addColorStop(1, 'rgba(24, 38, 150, 0)') }
       this.blob(dx, dy, this.edge(t * 1.3 + 7, size * 0.6, amp * 1.4, spd), gr)
 
@@ -640,15 +643,23 @@
     mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/>',
     chat: '<path d="M5 5h14v10H9l-4 4z"/><path d="M8.5 9h7M8.5 12h5"/>',
     upload: '<path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M5 15v4h14v-4"/>',
-    capsule: '<rect x="3" y="8.5" width="18" height="7" rx="3.5"/><path d="M12 8.5v7"/>',
     vault: '<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3.2"/>',
+    face: '<path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><circle cx="12" cy="11" r="3"/><path d="M8 17c1-1.6 2.4-2.3 4-2.3s3 .7 4 2.3"/>',
+    clip: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM8.5 11h7M8.5 14.5h5"/>',
   }
+  // the Home cards, in the app's order, with the line the greeting shows for each
   const DEV_CARDS = [
-    ['Daily Check-In', 'pulse', 'CHECK-IN'], ['Doctor Visit', 'mic', 'VISIT'], ['Upload Documents', 'upload', 'HEALTH DOCUMENTS'],
-    ['Chat', 'chat', 'CHAT'], ['Supplements', 'capsule', 'COMING SOON'], ['Vault', 'vault', 'VAULT'],
+    ['Daily Check-In', 'pulse', 'CHECK-IN', 'One minute for you.'],
+    ['Doctor Visit', 'mic', 'VISIT', 'Record it and get clear notes.'],
+    ['Chat', 'chat', 'CHAT', 'Type a question any time.'],
+    ['Upload Documents', 'upload', 'HEALTH DOCUMENTS', 'Health papers now.<br />Insurance comes soon.'],
+    ['Vault', 'vault', 'VAULT', 'What would you like to do today?'],
+    ['Face Scan', 'face', 'FACE SCAN', 'What would you like to do today?'],
+    ['Health intake', 'clip', 'HEALTH INTAKE', 'What would you like to do today?'],
   ]
   const devRail = document.getElementById('dev-rail')
   const devDots = document.getElementById('dev-dots')
+  const devSub = document.getElementById('dev-sub')
   const ARROW_SVG = '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
   const devEls = DEV_CARDS.map(([t, ic, l]) => {
     const el = document.createElement('div')
@@ -673,25 +684,33 @@
       el.classList.toggle('off', d !== 0)
       dot.classList.toggle('on', d === 0)
     })
+    if (!dx) devSub.innerHTML = DEV_CARDS[f][3]
   }
   devLayout(0)
 
   const $ = (id) => document.getElementById(id)
   const finger = $('dev-finger')
-  const later = (ms) => new Promise((r) => { timers.push(setTimeout(r, ms)) })
   let timers = [], run = 0
+  const STOP = {}
+  const later = (ms) => new Promise((r) => { timers.push(setTimeout(r, ms)) })
+  // every wait checks that this scene is still the one playing; if not, it bails out
+  let myRun = 0
+  const W = async (ms) => { await later(ms); if (myRun !== run) throw STOP }
 
   function fingerAt(x, y, down) {
     finger.classList.remove('moving')
     finger.style.left = x + 'px'; finger.style.top = y + 'px'
     finger.classList.toggle('down', !!down)
   }
+  async function tap(x, y) {
+    fingerAt(x, y, true)
+    await W(220)
+    finger.classList.remove('down')
+  }
   // a real swipe: the finger lands, drags the row with it, lets go, and the row springs on
-  async function swipe(id, dir = 1) {
-    // dir 1 pulls the next card in from the right; -1 pulls the previous one from the left
+  async function swipe(dir) {
     fingerAt(dir > 0 ? 300 : 90, 520, true)
-    await later(160)
-    if (id !== run) return
+    await W(160)
     devRail.classList.add('dragging')
     ORBS.home.gaze(-0.8 * dir, 0.3)
     finger.classList.add('moving')
@@ -699,35 +718,41 @@
     const t0 = performance.now()
     await new Promise((res) => {
       const f = (t) => {
-        if (id !== run) return res()
         const p = Math.min(1, (t - t0) / 420), e = 1 - Math.pow(1 - p, 2)
         devLayout(devF, -150 * e * dir)
-        p < 1 ? requestAnimationFrame(f) : res()
+        p < 1 && myRun === run ? requestAnimationFrame(f) : res()
       }
       requestAnimationFrame(f)
     })
-    if (id !== run) return
     finger.classList.remove('down')
-    devRail.classList.remove('dragging')   // let go: the row springs on from where the finger left it
+    devRail.classList.remove('dragging')
     devF = (devF + dir + devEls.length) % devEls.length
     devLayout(devF)
     ORBS.home.pulse(0.2); timers.push(setTimeout(() => ORBS.home.gaze(0, 0), 500))
+    if (myRun !== run) throw STOP
   }
-  async function tap(x, y) {
-    fingerAt(x, y, true)
-    await later(220)
-    finger.classList.remove('down')
+  // swipe the shorter way round to a card
+  async function swipeTo(i) {
+    const m = devEls.length
+    let d = i - devF; d -= m * Math.round(d / m)
+    while (d) { await swipe(Math.sign(d)); d -= Math.sign(d); await W(650) }
   }
-  // words arrive one at a time, the way speech does
-  async function say(el, text, perWord, id, orb, strength) {
+  async function openCard() {
+    await tap(195, 470)
+    devEls[devF].el.classList.add('press'); await W(140); devEls[devF].el.classList.remove('press')
+  }
+  function tab(name) {
+    document.querySelectorAll('.ni[data-tab]').forEach((n) => n.classList.toggle('on', n.dataset.tab === name))
+  }
+  const NAV_X = { home: 52, vault: 123, talk: 195, chat: 267 }
+  async function say(el, text, perWord, orb, strength) {
     el.textContent = ''
     for (const w of text.split(' ')) {
-      if (id !== run) return
       if (orb) orb.pulse(strength * (0.6 + Math.min(1, w.length / 7) * 0.6) * (0.8 + Math.random() * 0.4))
       const s = document.createElement('span')
       s.className = 'w-in'; s.textContent = w + ' '
       el.appendChild(s)
-      await later(perWord)
+      await W(perWord)
     }
   }
   const state = (t) => { $('dt-state').textContent = t }
@@ -736,86 +761,168 @@
     dev.classList.toggle('listening', m === 'listen'); dev.classList.toggle('speaking', m === 'speak')
     ORBS.talk.set(ENERGY[m] ?? 0.2)
   }
+  const mmss = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 
-  async function exchange(id, question, answer, source) {
-    $('dt-you').textContent = ''; $('dt-zeit').textContent = ''; $('dt-src').classList.remove('on')
-    await tap(195, 290)                                  // tap the orb
-    if (id !== run) return
-    ORBS.talk.poke()
-    mode('listen'); state("Listening. Pause when you're done.")
-    await say($('dt-you'), question, 260, id, ORBS.talk, 0.45)
-    await later(700); if (id !== run) return
-    mode(''); state('Got it')
-    await later(600); if (id !== run) return
-    state('Checking your papers'); mode('think')
-    await later(900); if (id !== run) return
-    mode('speak'); state('')
-    await say($('dt-zeit'), answer, 210, id, ORBS.talk, 0.6)
-    if (id !== run) return
-    $('dt-src').textContent = source; $('dt-src').classList.add('on')
-    mode(''); state('Tap to talk')
+  // ---- the scenes ----------------------------------------------------------------------
+  const SCENES = [
+    // Talk to ZEIT: the Start here sheet rises behind the cards, then a spoken question
+    async function talk() {
+      await W(900)
+      await tap(195, 790)
+      $('dev-scrim').classList.add('on'); $('dev-sheet').classList.add('on')
+      await W(2600)
+      await tap(195, 737); $('ds-btn').classList.add('press')
+      await W(260); $('ds-btn').classList.remove('press')
+      $('dev-sheet').classList.remove('on'); $('dev-scrim').classList.remove('on')
+      dev.classList.add('talking')
+      await W(1000)
+      await tap(195, 290); ORBS.talk.poke()
+      mode('listen'); state("Listening. Pause when you're done.")
+      await say($('dt-you'), 'What did my last blood test say?', 260, ORBS.talk, 0.45)
+      await W(700); mode(''); state('Got it')
+      await W(600); state('Checking your papers'); mode('think')
+      await W(900); mode('speak'); state('')
+      await say($('dt-zeit'), 'Your haemoglobin was 13.2 g/dL. That is in the normal range.', 210, ORBS.talk, 0.6)
+      $('dt-src').textContent = 'Lab result · 13 Oct 2026'; $('dt-src').classList.add('on')
+      mode(''); state('Tap to talk')
+      await W(3200)
+      await tap(353, 100)
+      dev.classList.remove('talking')
+    },
+    // Record a visit: ready, recording, transcript ready
+    async function visit() {
+      await W(700); await swipeTo(1); await W(500)
+      await openCard()
+      const s = $('scr-visit'); s.classList.add('on')
+      await W(2000)
+      await tap(195, 772); $('v-btn').classList.add('press'); await W(150); $('v-btn').classList.remove('press')
+      s.classList.add('rec'); ORBS.visit.tone = 'rec'; ORBS.visit.set(0.5); ORBS.visit.poke()
+      $('v-title').textContent = 'Recording your visit'; $('v-sub').textContent = ''
+      $('v-line').textContent = 'Your visit is being recorded.'; $('v-note').textContent = 'Keep this screen open.'
+      $('v-btn').innerHTML = '<span style="width:12px;height:12px;background:#fff;border-radius:2px"></span>Stop recording'
+      for (let t = 1; t <= 7; t++) { await W(1000); $('v-time').textContent = mmss(t); ORBS.visit.pulse(0.3 + Math.random() * 0.3) }
+      await tap(195, 772)
+      s.classList.remove('rec'); s.classList.add('done'); ORBS.visit.set(0.2)
+      $('v-title').textContent = 'Transcript ready'; $('v-sub').textContent = 'This can take a minute. Only what you save goes to your Vault.'
+      await W(4200)
+      await tap(346, 116); s.classList.remove('on')
+      await W(500)
+    },
+    // Face Scan: the intro card, then the live scan guiding you round
+    async function face() {
+      await W(700); await swipeTo(5); await W(500)
+      await openCard()
+      $('scr-face').classList.add('on')
+      await W(2200)
+      await tap(195, 640); $('fs-start').classList.add('press'); await W(150); $('fs-start').classList.remove('press')
+      $('scr-scan').classList.add('on')
+      await W(1600)
+      $('scan-mesh').classList.add('on')
+      let left = 60
+      const tick = setInterval(() => { left = Math.max(0, left - 1); $('scan-time').textContent = '00:' + String(left).padStart(2, '0') }, 1000)
+      timers.push({ clear: () => clearInterval(tick) })
+      await W(1400)
+      $('scan-h').textContent = 'Slowly turn slightly left'; $('scan-s').textContent = "We'll guide you to the next direction"
+      for (const off of [700, 520, 360]) { $('scan-arc').style.strokeDashoffset = off; await W(1200) }
+      $('scan-h').textContent = 'Now slowly turn right'
+      for (const off of [220, 90]) { $('scan-arc').style.strokeDashoffset = off; await W(1200) }
+      clearInterval(tick)
+      await W(800)
+      $('scr-scan').classList.remove('on'); $('scr-face').classList.remove('on')
+      await W(600)
+    },
+    // Health intake: your profile, then "Does this look right?"
+    async function intake() {
+      await W(700); await swipeTo(6); await W(500)
+      await openCard()
+      $('scr-intake').classList.add('on')
+      await W(900)
+      $('in-load').style.opacity = 0; $('in-profile').classList.add('on')
+      await W(1600)
+      $('in-profile').style.transform = 'translateY(-250px)'
+      await W(2200)
+      $('in-profile').classList.remove('on'); $('in-check').classList.add('on')
+      await W(2200)
+      await tap(70, 491); $('in-keep').classList.add('picked')
+      await W(2200)
+      await tap(346, 116); $('scr-intake').classList.remove('on')
+      await W(500)
+    },
+    // Vault: every letter and result, stacked
+    async function vault() {
+      await W(900)
+      await tap(NAV_X.vault, 790); tab('vault'); $('scr-vault').classList.add('on')
+      await W(1800)
+      const docs = [...document.querySelectorAll('#docs .doc')]
+      const place = (shift) => docs.forEach((d, i) => { const k = i - shift; d.style.transform = `translateY(${Math.max(-1, k) * 128}px) scale(${k < 0 ? 0.94 : 1})`; d.style.opacity = k < -1 ? 0 : 1 })
+      for (const sh of [1, 2, 1, 0]) { fingerAt(195, 600, true); finger.classList.add('moving'); finger.style.top = (sh ? 420 : 640) + 'px'; place(sh); await W(500); finger.classList.remove('down'); await W(1300) }
+      await W(400)
+      await tap(NAV_X.home, 790); tab('home'); $('scr-vault').classList.remove('on')
+      await W(500)
+    },
+    // Chat: the list, then one conversation
+    async function chat() {
+      await W(900)
+      await tap(NAV_X.chat, 790); tab('chat'); $('scr-chat').classList.add('on')
+      await W(1900)
+      await tap(150, 250); $('c-first').classList.add('press'); await W(140); $('c-first').classList.remove('press')
+      $('scr-chat').classList.add('thread')
+      const box = $('c-msgs'); box.innerHTML = ''
+      const add = (cls, text) => { const m = document.createElement('div'); m.className = 'msg ' + cls; m.textContent = text; box.appendChild(m); return m }
+      await W(500); add('u', 'What is ferritin?')
+      await W(500); const d = add('z dots', '•••')
+      await W(1300); d.remove()
+      const z = add('z', ''); await say(z, 'Ferritin is a protein that stores iron. It shows how much iron your body has in reserve.', 170)
+      await W(3000)
+      await tap(NAV_X.home, 790); tab('home'); $('scr-chat').classList.remove('on', 'thread')
+      await W(500)
+    },
+  ]
+  // rough length of each scene, for the progress line beside the phone
+  const SCENE_MS = [27000, 21500, 17500, 15500, 11000, 13500]
+
+  function resetScenes() {
+    devF = 0; devLayout(0); tab('home'); mode('')
+    dev.classList.remove('talking', 'listening', 'speaking')
+    ;['dev-sheet', 'dev-scrim', 'scr-visit', 'scr-face', 'scr-scan', 'scr-intake', 'scr-vault', 'scr-chat'].forEach((id) => $(id).classList.remove('on'))
+    $('scr-visit').classList.remove('rec', 'done'); $('scr-chat').classList.remove('thread')
+    $('v-title').textContent = 'Ready to record'; $('v-sub').textContent = 'Recording starts when you tap the button.'
+    $('v-time').textContent = '0:00'; $('v-line').textContent = 'Put the phone where everyone can hear.'; $('v-note').textContent = 'A visit can be up to 15 minutes long.'
+    $('v-btn').textContent = 'Start recording'
+    if (ORBS.visit) { ORBS.visit.tone = ''; ORBS.visit.set(0.2) }
+    $('scan-h').textContent = 'Looking for your face'; $('scan-s').textContent = 'Center your face in the frame'; $('scan-time').textContent = '01:00'
+    $('scan-arc').style.strokeDashoffset = 880; $('scan-mesh').classList.remove('on')
+    $('in-load').style.opacity = 1; $('in-profile').classList.remove('on'); $('in-profile').style.transform = ''; $('in-check').classList.remove('on'); $('in-keep').classList.remove('picked')
+    document.querySelectorAll('#docs .doc').forEach((d, i) => { d.style.transform = `translateY(${i * 128}px)`; d.style.opacity = 1 })
+    state('Tap to talk'); $('dt-you').textContent = ''; $('dt-zeit').textContent = ''; $('dt-src').classList.remove('on')
   }
 
-  // The use cases: each one swipes to its card on Home, asks the orb, and gets an answer
-  // from the record. Values match the cards higher up the page, so the page tells one story.
-  const USES = [
-    { swipes: [], intro: true, q: 'How did I sleep this month?', a: 'About 6 h 58 min a night. Your best week was 7 h 22.', src: 'Ring sensor · 30 days' },
-    { swipes: [1], q: 'What should I ask at my visit on Friday?', a: 'Ask if your HbA1c needs a recheck, and if folic acid still makes sense for you.', src: 'Doctor visit · Fri 10:30' },
-    { swipes: [-1], q: 'What did my last blood test say?', a: 'Your HbA1c was 5.4 %. That is in the normal range.', src: 'Blood panel · Mar 2023' },
-    { swipes: [-1, -1], q: 'When did I stop taking folic acid?', a: 'You paused it in June 2022. Before that you took 400 µg with breakfast.', src: 'Medicines · Folic acid 400 µg' },
-  ]
   const useEls = [...document.querySelectorAll('#uses .use')]
   const phoneCap = document.getElementById('phone-cap')
   let useIdx = 0, progRaf = 0
   function showUse(i) {
     useEls.forEach((el, j) => { el.classList.toggle('on', j === i); el.setAttribute('aria-pressed', j === i); el.style.setProperty('--p', j < i ? 1 : 0) })
     if (useEls[i]) phoneCap.textContent = useEls[i].querySelector('b').textContent
-    // the active line fills over the length of its scene
     cancelAnimationFrame(progRaf)
-    const u = USES[i], words = (t) => t.split(' ').length
-    const dur = (1.1 + u.swipes.length * 1.6 + (u.intro ? 3.3 : 0) + 2.2 + words(u.q) * 0.26 + 2.2 + words(u.a) * 0.21 + 4.4) * 1000
-    const el = useEls[i], t0 = performance.now()
+    const el = useEls[i], t0 = performance.now(), dur = SCENE_MS[i]
     const f = (t) => { if (el) el.style.setProperty('--p', Math.min(1, (t - t0) / dur).toFixed(3)); if (t - t0 < dur) progRaf = requestAnimationFrame(f) }
     progRaf = requestAnimationFrame(f)
   }
 
   async function play(i = useIdx) {
-    const id = ++run
+    myRun = ++run
     stopTimers()
     useIdx = i
-    const u = USES[i]
     showUse(i)
-    devF = 0; devLayout(0); dev.classList.remove('talking', 'listening', 'speaking')
-    $('dev-sheet').classList.remove('on'); $('dev-scrim').classList.remove('on')
-    state('Tap to talk'); $('dt-you').textContent = ''; $('dt-zeit').textContent = ''; $('dt-src').classList.remove('on')
-    await later(1100); if (id !== run) return
-    for (const d of u.swipes) { await swipe(id, d); await later(1000); if (id !== run) return }
-    if (u.intro) {
-      // Talk to ZEIT from the nav: the "Start here" sheet rises behind the cards
-      await tap(195, 790); if (id !== run) return
-      $('dev-scrim').classList.add('on'); $('dev-sheet').classList.add('on')
-      await later(2600); if (id !== run) return
-      await tap(195, 737); $('ds-btn').classList.add('press'); if (id !== run) return
-      await later(260); $('ds-btn').classList.remove('press')
-      $('dev-sheet').classList.remove('on'); $('dev-scrim').classList.remove('on')
-      dev.classList.add('talking')
-    } else {
-      await tap(195, 240); if (id !== run) return           // the orb on Home
-      ORBS.home.poke()
-      dev.classList.add('talking')
-    }
-    await later(1000); if (id !== run) return
-    await exchange(id, u.q, u.a, u.src)
-    await later(3000); if (id !== run) return
-    await tap(353, 100)                                     // close
-    dev.classList.remove('talking'); mode('')
-    devF = 0; devLayout(0)
-    await later(1200); if (id !== run) return
-    play((i + 1) % USES.length)
+    resetScenes()
+    try {
+      await SCENES[i]()
+      await W(400)
+    } catch (e) { if (e !== STOP) throw e; return }
+    play((i + 1) % SCENES.length)
   }
-  // pick a use case yourself and the phone plays it straight away
   useEls.forEach((el, j) => el.addEventListener('click', () => { if (!reduce) play(j); else showUse(j) }))
-  function stopTimers() { timers.forEach(clearTimeout); timers = [] }
+  function stopTimers() { timers.forEach((t) => (t && t.clear ? t.clear() : clearTimeout(t))); timers = [] }
   function stop() { run++; stopTimers(); cancelAnimationFrame(progRaf); finger.classList.remove('down'); mode('') }
   if (reduce) showUse(0)
   if (!reduce && 'IntersectionObserver' in window) {
