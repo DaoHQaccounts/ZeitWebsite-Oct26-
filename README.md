@@ -1,4 +1,4 @@
-# Zeit Health — website v10
+# Zeit Health — website v11
 
 Mobile-first marketing site. Plain HTML, CSS and JS: no framework, no build step.
 
@@ -6,14 +6,14 @@ Mobile-first marketing site. Plain HTML, CSS and JS: no framework, no build step
 
 1. **Hero** — simple / secure / health / superapp, with the app's orb; lifts away on scroll
 2. **Cards** — company-style cards; a stacked deck that fans into the app's rail as you scroll
-3. **The app** — the app in a phone frame, used the way a person would: swipe the cards, tap the orb, ask out loud, get an answer from the record
+3. **The app** — six use cases in a phone frame, built from the real app screens: Talk to ZEIT, Record a visit, Face Scan, Health intake, Vault, Chat
 4. **About** — short intro and four pillars
 5. **Opt-in** — email sign-up for updates
 6. **Footer**
 
 ## Share it
 
-`share/zeit-health-v10.html` is the whole site in one file. Send it; it opens in any browser.
+`share/zeit-health-v11.html` is the whole site in one file. Send it; it opens in any browser.
 
 ## Run it
 
