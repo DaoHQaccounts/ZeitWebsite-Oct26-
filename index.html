@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Zeit Health — simple, secure health superapp</title>
+  <meta name="description" content="Zeit Health keeps your documents, results, appointments and medications in one calm place. Simple, secure, made for the whole family." />
+  <meta name="theme-color" content="#fbfbfc" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Zeit Health home">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>Zeit Health</span>
+    </a>
+    <a class="topbar-cta" href="#updates">Get updates</a>
+  </header>
+
+  <main id="top">
+
+    <!-- 1 · HERO: four words, nothing else -->
+    <section class="hero" aria-label="Zeit Health">
+      <h1 class="hero-words">
+        <span class="w">simple</span>
+        <span class="w">secure</span>
+        <span class="w">health</span>
+        <span class="w">superapp</span>
+      </h1>
+      <a class="scroll-cue" href="#cards" aria-label="Scroll to see the cards">
+        <span class="cue-line" aria-hidden="true"></span>
+      </a>
+    </section>
+
+    <!-- 2 · THE CARD SYSTEM: the app's own rail, faces and motion -->
+    <section class="cards" id="cards" aria-labelledby="cards-h">
+      <div class="pad">
+        <p class="kicker">A glimpse inside</p>
+        <h2 id="cards-h" class="sec-h">Everything you need,<br />one card at a time.</h2>
+        <p class="sec-sub"><span class="hl">Swipe the cards</span> and tap one to open it.</p>
+      </div>
+      <div class="rail" id="rail" role="group" aria-label="Health cards, use arrow keys to browse"></div>
+      <div class="rail-dots" id="dots" aria-hidden="true"></div>
+    </section>
+
+    <!-- 3 · ABOUT -->
+    <section class="about pad" aria-labelledby="about-h">
+      <p class="kicker">Zeit Health</p>
+      <h2 id="about-h" class="sec-h">Your health, finally in one calm place.</h2>
+      <p class="lede">
+        Letters, results, appointments, medicines. Today they live in drawers, inboxes and
+        five different apps. Zeit Health brings them together and tells you, in plain words,
+        what to do next.
+      </p>
+
+      <ul class="pillars">
+        <li>
+          <b>Simple</b>
+          <span>One home screen. One card for each thing that needs you. No menus to learn.</span>
+        </li>
+        <li>
+          <b>Secure</b>
+          <span>Your records stay private. You choose who sees what, and you can change it anytime.</span>
+        </li>
+        <li>
+          <b>Plain words</b>
+          <span>Every result and letter explained so anyone in the family can understand it.</span>
+        </li>
+        <li>
+          <b>For the whole family</b>
+          <span>Look after your parents, partner and kids from the same place.</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 4 · OPT-IN -->
+    <section class="updates pad" id="updates" aria-labelledby="updates-h">
+      <div class="optin">
+        <h2 id="updates-h" class="sec-h">Be first to try it.</h2>
+        <p class="sec-sub">We'll email you when Zeit Health opens. No spam, ever.</p>
+        <form class="optin-form" id="optin" novalidate>
+          <label class="sr-only" for="email">Email address</label>
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email"
+                 placeholder="you@email.com" required />
+          <button type="submit">Keep me posted</button>
+        </form>
+        <p class="optin-msg" id="optin-msg" role="status" aria-live="polite"></p>
+        <p class="fine">By joining you agree to get occasional product updates. Unsubscribe anytime.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 5 · FOOTER -->
+  <footer class="footer pad">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>Zeit Health</span>
+    </div>
+    <p class="foot-tag">Simple. Secure. Health superapp.</p>
+    <nav class="foot-links" aria-label="Footer">
+      <a href="#cards">The app</a>
+      <a href="#updates">Updates</a>
+    </nav>
+    <p class="foot-legal">© <span id="year">2026</span> Zeit Health. All rights reserved.</p>
+  </footer>
+
+  <!-- the opened card (medium mode) -->
+  <div class="scrim" id="scrim" hidden></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+    <div class="sheet-band" id="sheet-band">
+      <div class="grab" aria-hidden="true"></div>
+      <button class="sheet-close" id="sheet-close" aria-label="Close card">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="sheet-art" id="sheet-art"></div>
+    </div>
+    <div class="sheet-body">
+      <h3 id="sheet-title" class="sheet-title"></h3>
+      <p id="sheet-hint" class="sheet-hint"></p>
+      <ul id="sheet-rows" class="sheet-rows"></ul>
+      <p class="sheet-foot">A preview of the Zeit Health app.</p>
+    </div>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
