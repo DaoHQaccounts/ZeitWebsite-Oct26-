@@ -65,9 +65,7 @@
           <li><button class="use on" type="button" aria-pressed="true"><b>Talk to ZEIT</b><span>Ask out loud. It answers from your record.</span></button></li>
           <li><button class="use" type="button" aria-pressed="false"><b>Record a visit</b><span>Get a clear transcript of what was said.</span></button></li>
           <li><button class="use" type="button" aria-pressed="false"><b>Face Scan</b><span>A one-minute check with your camera.</span></button></li>
-          <li><button class="use" type="button" aria-pressed="false"><b>Health intake</b><span>Make sure your profile is right.</span></button></li>
           <li><button class="use" type="button" aria-pressed="false"><b>Vault</b><span>Every letter and result in one place.</span></button></li>
-          <li><button class="use" type="button" aria-pressed="false"><b>Chat</b><span>Type a question any time.</span></button></li>
         </ol>
       </div>
       <figure class="phone" id="phone">
@@ -170,38 +168,6 @@
               <p class="scan-back">Back to Home</p>
             </div>
 
-            <!-- Health intake (sheet) -->
-            <div class="scr sheet-scr" id="scr-intake">
-              <span class="sx">&times;</span>
-              <p class="sk">HEALTH INTAKE</p>
-              <p class="sh">Health intake</p>
-              <div class="in-body" id="in-body">
-                <p class="in-load" id="in-load">Loading health profile...</p>
-                <div class="in-view" id="in-profile">
-                  <p class="in-k">Your health profile · version 1</p>
-                  <p class="in-h">Your health profile</p>
-                  <p class="in-p">Answers you confirmed or marked not sure. Unsure answers are not confirmed facts.</p>
-                  <p class="in-sec">About you</p>
-                  <div class="in-f"><b>Name</b><span>Katrin Beispiel</span></div>
-                  <div class="in-f"><b>Date of birth</b><span>3 May 1990</span></div>
-                  <div class="in-f"><b>Sex at birth</b><span>Female</span></div>
-                  <div class="in-f"><b>Height</b><span>176 cm</span></div>
-                  <div class="in-f"><b>Weight</b><span>72 kg</span></div>
-                  <p class="in-sec">Health</p>
-                  <div class="in-f"><b>Medicines and supplements</b><span>Nothing right now</span></div>
-                  <div class="in-f"><b>Allergies</b><span>None that I know of</span></div>
-                </div>
-                <div class="in-view" id="in-check">
-                  <p class="in-k">Your health profile</p>
-                  <p class="in-h">Does this look right?</p>
-                  <p class="in-p">Check your answers. Change anything before you confirm.</p>
-                  <p class="in-sec">About you</p>
-                  <div class="in-f"><b>Name</b><span>Katrin Beispiel</span><em>From your profile</em><span class="in-opts"><i id="in-keep">Keep</i><i>Edit</i><i>Not sure</i></span></div>
-                  <div class="in-f"><b>Date of birth</b><span>3 May 1990</span><em>From your profile</em><span class="in-opts"><i>Keep</i><i>Edit</i><i>Not sure</i></span></div>
-                </div>
-              </div>
-            </div>
-
             <!-- Vault (tab) -->
             <div class="scr tab-scr" id="scr-vault">
               <p class="t-h">Vault</p>
@@ -215,26 +181,6 @@
               </div>
             </div>
 
-            <!-- Chat (tab): the list, then one conversation -->
-            <div class="scr tab-scr" id="scr-chat">
-              <div class="c-list" id="c-list">
-                <p class="t-h">Conversations</p>
-                <div class="c-new"><span>+</span><p><b>New conversation</b>What can I help with?</p></div>
-                <div class="c-row" id="c-first"><span class="c-i"></span><p><b>What is ferritin?</b>Ferritin is a protein that stores...</p><time>2:27 PM</time><em>Delete</em></div>
-                <div class="c-row"><span class="c-i"></span><p><b>My sister's haemoglobin</b>Your haemoglobin was 13.2 g...</p><time>2:26 PM</time><em>Delete</em></div>
-                <div class="c-row"><span class="c-i"></span><p><b>Can you see my check-in?</b>It's on the Daily Check-In car...</p><time>2:17 PM</time><em>Delete</em></div>
-                <div class="c-row"><span class="c-i"></span><p><b>Upload a letter</b>You can use Upload Documents...</p><time>2:19 PM</time><em>Delete</em></div>
-                <div class="c-row"><span class="c-i"></span><p><b>What can you do</b>Earlier statements, and show...</p><time>2:05 PM</time><em>Delete</em></div>
-              </div>
-              <div class="c-thread" id="c-thread">
-                <p class="c-back">&larr; All conversations</p>
-                <p class="c-title">What is ferritin?</p>
-                <p class="c-del">Delete conversation</p>
-                <span class="c-day">Today</span>
-                <div class="c-msgs" id="c-msgs"></div>
-                <div class="c-compose"><span>+</span><span class="mic"></span><p>Ask ZEIT anything...</p><span class="send"></span></div>
-              </div>
-            </div>
             <span class="dev-finger" id="dev-finger"></span>
           </div>
         </div>

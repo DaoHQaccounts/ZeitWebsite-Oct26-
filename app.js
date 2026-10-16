@@ -831,23 +831,6 @@
       $('scr-scan').classList.remove('on'); $('scr-face').classList.remove('on')
       await W(600)
     },
-    // Health intake: your profile, then "Does this look right?"
-    async function intake() {
-      await W(700); await swipeTo(6); await W(500)
-      await openCard()
-      $('scr-intake').classList.add('on')
-      await W(900)
-      $('in-load').style.opacity = 0; $('in-profile').classList.add('on')
-      await W(1600)
-      $('in-profile').style.transform = 'translateY(-250px)'
-      await W(2200)
-      $('in-profile').classList.remove('on'); $('in-check').classList.add('on')
-      await W(2200)
-      await tap(70, 491); $('in-keep').classList.add('picked')
-      await W(2200)
-      await tap(346, 116); $('scr-intake').classList.remove('on')
-      await W(500)
-    },
     // Vault: every letter and result, stacked
     async function vault() {
       await W(900)
@@ -860,39 +843,21 @@
       await tap(NAV_X.home, 790); tab('home'); $('scr-vault').classList.remove('on')
       await W(500)
     },
-    // Chat: the list, then one conversation
-    async function chat() {
-      await W(900)
-      await tap(NAV_X.chat, 790); tab('chat'); $('scr-chat').classList.add('on')
-      await W(1900)
-      await tap(150, 250); $('c-first').classList.add('press'); await W(140); $('c-first').classList.remove('press')
-      $('scr-chat').classList.add('thread')
-      const box = $('c-msgs'); box.innerHTML = ''
-      const add = (cls, text) => { const m = document.createElement('div'); m.className = 'msg ' + cls; m.textContent = text; box.appendChild(m); return m }
-      await W(500); add('u', 'What is ferritin?')
-      await W(500); const d = add('z dots', '•••')
-      await W(1300); d.remove()
-      const z = add('z', ''); await say(z, 'Ferritin is a protein that stores iron. It shows how much iron your body has in reserve.', 170)
-      await W(3000)
-      await tap(NAV_X.home, 790); tab('home'); $('scr-chat').classList.remove('on', 'thread')
-      await W(500)
-    },
   ]
   // rough length of each scene, for the progress line beside the phone
-  const SCENE_MS = [27000, 21500, 17500, 15500, 11000, 13500]
+  const SCENE_MS = [27000, 21500, 17500, 11000]
 
   function resetScenes() {
     devF = 0; devLayout(0); tab('home'); mode('')
     dev.classList.remove('talking', 'listening', 'speaking')
-    ;['dev-sheet', 'dev-scrim', 'scr-visit', 'scr-face', 'scr-scan', 'scr-intake', 'scr-vault', 'scr-chat'].forEach((id) => $(id).classList.remove('on'))
-    $('scr-visit').classList.remove('rec', 'done'); $('scr-chat').classList.remove('thread')
+    ;['dev-sheet', 'dev-scrim', 'scr-visit', 'scr-face', 'scr-scan', 'scr-vault'].forEach((id) => $(id).classList.remove('on'))
+    $('scr-visit').classList.remove('rec', 'done')
     $('v-title').textContent = 'Ready to record'; $('v-sub').textContent = 'Recording starts when you tap the button.'
     $('v-time').textContent = '0:00'; $('v-line').textContent = 'Put the phone where everyone can hear.'; $('v-note').textContent = 'A visit can be up to 15 minutes long.'
     $('v-btn').textContent = 'Start recording'
     if (ORBS.visit) { ORBS.visit.tone = ''; ORBS.visit.set(0.2) }
     $('scan-h').textContent = 'Looking for your face'; $('scan-s').textContent = 'Center your face in the frame'; $('scan-time').textContent = '01:00'
     $('scan-arc').style.strokeDashoffset = 880; $('scan-mesh').classList.remove('on')
-    $('in-load').style.opacity = 1; $('in-profile').classList.remove('on'); $('in-profile').style.transform = ''; $('in-check').classList.remove('on'); $('in-keep').classList.remove('picked')
     document.querySelectorAll('#docs .doc').forEach((d, i) => { d.style.transform = `translateY(${i * 128}px)`; d.style.opacity = 1 })
     state('Tap to talk'); $('dt-you').textContent = ''; $('dt-zeit').textContent = ''; $('dt-src').classList.remove('on')
   }
