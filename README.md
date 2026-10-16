@@ -1,11 +1,11 @@
-# Zeit Health — website v1
+# Zeit Health — website v2
 
 Mobile-first marketing site. Plain HTML, CSS and JS: no framework, no build step.
 
 ## Sections
 
 1. **Hero** — four words: simple / secure / health / superapp
-2. **Card system** — the app's own card rail: same pastel faces, illustrations, spring motion,
+2. **Card system** — company-style cards (colour field + data half) on the app's rail motion
    entry sweep, swipe and tap-to-open (ported from `zeit-flows-app/src/components/CardRail.jsx`)
 3. **About** — short intro and four pillars
 4. **Opt-in** — email sign-up for updates
