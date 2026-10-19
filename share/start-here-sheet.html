@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Start here sheet: rises behind the cards</title>
+<!--
+  ZEIT · "Start here" sheet animation, on its own.
+
+  What it does
+    You tap "Talk to ZEIT" in the nav. A dark scrim fades in and the white "Start here"
+    sheet slides up from the bottom. The Home cards stay ON TOP of the sheet, so they
+    look like they float over it. Tap "Start voice walkthrough" and the sheet slides away.
+
+  The trick (layering)
+    Everything sits in one stacking context: the .phone-screen element.
+      greeting + orb ........ no z-index (bottom)
+      nav ................... z-index 4
+      scrim ................. z-index 7
+      sheet ................. z-index 8
+      side cards ............ z-index 9
+      centre card ........... z-index 10   (top)
+    The cards' parents (.home, .rail) must NOT create their own stacking context
+    (no z-index, no transform, no opacity < 1, no filter) or the cards could not
+    climb above the sheet.
+
+  The motion
+    Sheet: transform translateY(102%) -> 0, .45s cubic-bezier(.2,.9,.2,1)
+    Scrim: opacity 0 -> 1, .3s ease
+    Button press: scale(.97) for .15s
+-->
+<style>
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; gap: 20px; padding: 32px 16px;
+    background: #f3f5f8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #111318; }
+  .replay { font: inherit; font-size: 14px; padding: 10px 18px; border-radius: 20px; border: 1px solid rgba(17,19,24,.15); background: #fff; cursor: pointer; }
+
+  /* phone frame; the screen inside is built at 390 x 844 and scaled to fit */
+  .phone { width: min(86vw, 360px); padding: 10px; border-radius: 56px; background: linear-gradient(145deg, #2a2d33, #0d0f12 40%, #24272d);
+    box-shadow: 0 18px 40px rgba(12,14,18,.12), 0 40px 80px rgba(12,14,18,.08); }
+  .viewport { position: relative; aspect-ratio: 390 / 844; border-radius: 46px; overflow: hidden; }
+  .phone-screen { position: absolute; left: 0; top: 0; width: 390px; height: 844px; transform-origin: 0 0; overflow: hidden;
+    background: linear-gradient(#f4f6f9, #eceff4); --spring: cubic-bezier(.2, .9, .25, 1); }
+
+  /* Home: greeting, orb, card rail. NOTE: no z-index / transform here, on purpose */
+  .home { position: absolute; inset: 50px 0 0 0; }
+  .hello { position: absolute; left: 24px; top: 46px; margin: 0; font-size: 37px; line-height: 1.12; font-weight: 700; letter-spacing: -0.045em; }
+  .orb { position: absolute; left: 144px; top: 190px; width: 100px; height: 100px; border-radius: 50%; filter: blur(2.5px);
+    background: radial-gradient(circle at 35% 30%, #a8c1fa, #3550d8 60%, #1d2f9c); }
+  .rail { position: absolute; left: 0; right: 0; top: 330px; height: 290px; }
+  .card { position: absolute; left: 72px; top: 0; width: 246px; height: 277px; border-radius: 26px;
+    background: linear-gradient(160deg, #fff 0%, #f6f7f9 40%, #e9ebef 62%, #fafbfc 100%);
+    box-shadow: 0 2px 4px rgba(12,14,18,.06), 0 16px 34px rgba(12,14,18,.12); }
+  .card b { position: absolute; left: 21px; top: 21px; font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+  .card i { position: absolute; left: 21px; top: 237px; font-style: normal; font-size: 11px; font-weight: 600; letter-spacing: .16em; color: #3d424b; }
+  .card.side { transform: translate3d(var(--x), 6px, 0) scale(.86); z-index: 9; opacity: .55; }  /* above the sheet (8) */
+  .card.mid  { z-index: 10; }                                                                     /* top of everything */
+
+  .nav { position: absolute; left: 16px; right: 16px; bottom: 26px; height: 70px; z-index: 4; border-radius: 36px; background: rgba(255,255,255,.96);
+    box-shadow: 0 6px 24px rgba(12,14,18,.10); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; }
+
+  /* the scrim and the sheet: both sit BELOW the cards */
+  .scrim { position: absolute; inset: 0; z-index: 7; background: rgba(12,14,18,.35); opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+  .scrim.on { opacity: 1; }
+  .sheet { position: absolute; left: 0; right: 0; top: 88px; bottom: 0; z-index: 8; padding: 0 26px;
+    background: #fafbfc; border-radius: 26px 26px 0 0;
+    transform: translateY(102%); transition: transform .45s cubic-bezier(.2, .9, .2, 1); }
+  .sheet.on { transform: none; }
+  .x { position: absolute; right: 26px; top: 26px; width: 44px; height: 44px; border-radius: 50%; background: #fff; box-shadow: 0 2px 10px rgba(12,14,18,.1);
+    display: flex; align-items: center; justify-content: center; font-size: 24px; color: #3d424b; }
+  .k { margin: 60px 0 0; text-align: center; font-size: 12px; font-weight: 600; letter-spacing: .14em; color: #3d424b; }
+  .h { margin: 6px 0 46px; text-align: center; font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
+  .p { margin: 0 0 16px; font-size: 17px; line-height: 1.42; color: #3d424b; }
+  .btn { position: absolute; left: 26px; right: 26px; bottom: 78px; height: 58px; border-radius: 14px; background: #111318; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; transition: transform .15s ease; }
+  .btn.press { transform: scale(.97); }
+  .link { position: absolute; left: 0; right: 0; bottom: 30px; text-align: center; font-size: 15px; color: #3d424b; }
+
+  /* a finger, so you can see the taps */
+  .finger { position: absolute; z-index: 11; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%;
+    background: rgba(17,19,24,.16); box-shadow: 0 0 0 1.5px rgba(255,255,255,.75); opacity: 0; transform: scale(.7); transition: opacity .18s, transform .18s; }
+  .finger.down { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) { .sheet, .scrim, .btn { transition: none; } }
+</style>
+</head>
+<body>
+  <div class="phone">
+    <div class="viewport">
+      <div class="phone-screen" id="screen">
+        <div class="home">
+          <h3 class="hello">Hi Katrin,<br />here is your record.</h3>
+          <div class="orb"></div>
+          <div class="rail">
+            <div class="card side" style="--x:-243px"><b>Vault</b><i>VAULT</i></div>
+            <div class="card mid"><b>Daily Check-In</b><i>CHECK-IN</i></div>
+            <div class="card side" style="--x:243px"><b>Doctor Visit</b><i>VISIT</i></div>
+          </div>
+        </div>
+        <div class="nav">Talk to ZEIT</div>
+
+        <div class="scrim" id="scrim"></div>
+        <div class="sheet" id="sheet">
+          <span class="x">&times;</span>
+          <p class="k">START HERE</p>
+          <p class="h">A short tour</p>
+          <p class="p">See what each card on your Home does.</p>
+          <p class="p">The Orb talks you through your Home and swipes the cards for you. It uses your microphone.</p>
+          <span class="btn" id="btn">Start voice walkthrough</span>
+          <span class="link">Show me how ZEIT works</span>
+        </div>
+
+        <span class="finger" id="finger"></span>
+      </div>
+    </div>
+  </div>
+  <button class="replay" id="replay" type="button">Replay</button>
+
+<script>
+  // scale the 390 x 844 screen to whatever size the phone frame is
+  const screen = document.getElementById('screen')
+  const fit = () => { screen.style.transform = `scale(${screen.parentElement.clientWidth / 390})` }
+  addEventListener('resize', fit); fit()
+
+  const $ = (id) => document.getElementById(id)
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms))
+  async function tap(x, y) {
+    const f = $('finger'); f.style.left = x + 'px'; f.style.top = y + 'px'
+    f.classList.add('down'); await wait(220); f.classList.remove('down')
+  }
+
+  let run = 0
+  async function play() {
+    const id = ++run
+    $('sheet').classList.remove('on'); $('scrim').classList.remove('on')
+    await wait(1100); if (id !== run) return
+    await tap(195, 790)                                  // tap "Talk to ZEIT"
+    $('scrim').classList.add('on'); $('sheet').classList.add('on')    // sheet rises behind the cards
+    await wait(2600); if (id !== run) return
+    await tap(195, 737); $('btn').classList.add('press')  // press the button
+    await wait(260); $('btn').classList.remove('press')
+    $('sheet').classList.remove('on'); $('scrim').classList.remove('on')  // sheet drops away
+    await wait(1800); if (id !== run) return
+    play()                                               // loop
+  }
+  $('replay').addEventListener('click', play)
+  play()
+</script>
+</body>
+</html>
